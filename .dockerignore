@@ -43,14 +43,3 @@ run
 data
 assets
 .env
-
-scripts/workflow/docker-compose.yml
-scripts/workflow/data
-
-schema.gql
-
-app.config.js
-
-webpack-dist
-
-admin/
