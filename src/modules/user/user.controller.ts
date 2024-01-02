@@ -1,4 +1,12 @@
-import { Body, Controller, Get, HttpCode, Patch, Post } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
 
 import { Auth } from '~/common/decorator/auth.decorator'
@@ -26,9 +34,9 @@ export class UserController {
   }
 
   @Get()
-  @ApiOperation({ summary: '获取主人基本信息' })
-  async getUserInfo() {
-    return await this.userService.getUserInfo()
+  @ApiOperation({ summary: '获取用户基本信息' })
+  async getUserInfo(@Query('username') username: string) {
+    return await this.userService.getUserInfo(username)
   }
 
   @Post('login')

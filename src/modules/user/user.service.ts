@@ -14,7 +14,6 @@ import { sleep } from '~/utils/tool.util'
 
 import { UserDetailDto, UserDto } from './user.dto'
 
-
 function compareSync(password: string, hash: string) {
   return password === hash
 }
@@ -22,7 +21,6 @@ function compareSync(password: string, hash: string) {
 function hashSync(password: string, salt: number) {
   return password
 }
-
 
 @Injectable()
 export class UserService {
@@ -33,8 +31,14 @@ export class UserService {
   async createUser(user: UserDto) {
     const hasMaster = await this.hasMaster()
 
-    if (hasMaster) {
-      throw new BadRequestException('我已经有一个主人了哦')
+    if (!hasMaster) {
+      // 如果是第一个用户，那么就是主人，会有一个特殊权限，但...也无所谓
+    }
+
+    // 检测是否有重名
+    const hasUser = await this.userModel.findOne({ username: user.username })
+    if (hasUser) {
+      throw new BadRequestException('用户名已存在')
     }
     user.password = hashSync(user.password, 6)
     const authCode = nanoid(10)
@@ -61,12 +65,14 @@ export class UserService {
     return user
   }
 
-  async getUserInfo() {
+  async getUserInfo(username) {
+    if (!username) throw new BadRequestException('用户名不能为空~')
+
     const userInfo = await this.userModel
-      .findOne()
+      .findOne({ username })
       .select(['-password', '-authCode', '-created'])
     if (!userInfo) {
-      throw new BadRequestException('没有完成初始化!')
+      throw new BadRequestException('用户名不存在~')
     }
     return userInfo
   }
