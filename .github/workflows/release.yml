@@ -73,6 +73,6 @@ jobs:
   #         password: ${{ secrets.PASSWORD }}
   #         script_stop: true
   #         script: |
-  #           cd /www/suemor-blog/suemor-core-docker
+  #           cd /www/huamurui-blog/huamurui-core-docker
   #           sudo docker compose pull
   #           sudo docker compose up -d

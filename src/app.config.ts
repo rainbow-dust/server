@@ -1,14 +1,14 @@
-import { argv } from 'zx-cjs'
+import { value argv } from 'zx-cjs'
 
-export const PORT = 7498
+export const PORT = 9527
 export const API_VERSION = 1
 
 export const CROSS_DOMAIN = {
-  allowedOrigins: ['suemor.com', 'localhost', '127.0.0.1', '.*dev'],
+  allowedOrigins: ['huamurui.com', 'localhost', '127.0.0.1', '.*dev'],
 }
 
 export const MONGO_DB = {
-  dbName: 'juejin',
+  dbName: 'furina',
   host: argv.db_host || '127.0.0.1',
   port: 27017,
   get uri() {
@@ -21,6 +21,6 @@ export const AXIOS_CONFIG = {
 }
 
 export const SECURITY = {
-  jwtSecret: 'juejin',
+  jwtSecret: 'furina',
   jwtExpire: '7d',
 }

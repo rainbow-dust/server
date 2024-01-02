@@ -18,7 +18,7 @@ if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
-curl https://cdn.jsdelivr.net/gh/Bocchi-Developers/juejin-core@master/docker-compose.yml >docker-compose.yml
+curl https://cdn.jsdelivr.net/gh/rainbow-dust/furina-server@master/docker-compose.yml >docker-compose.yml
 
 docker-compose up -d
 
@@ -30,7 +30,7 @@ fi
 RETRY=0
 
 do_request() {
-  curl -f -m 10 localhost:7498/api/v1 -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36'
+  curl -f -m 10 localhost:9527/api/v1 -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36'
 
 }
 

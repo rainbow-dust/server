@@ -30,7 +30,7 @@
     ],
     "publish": false,
     "tag": true,
-    "commit_message": "chore(release): bump @suemor/suemor-blog to v${NEW_VERSION}"
+    "commit_message": "chore(release): bump @huamurui/huamurui-blog to v${NEW_VERSION}"
   },
   "scripts": {
     "prepare": "husky install",
@@ -75,11 +75,11 @@
   "devDependencies": {
     "@commitlint/cli": "^17.4.2",
     "@commitlint/config-conventional": "^17.4.2",
+    "@huamurui/eslint-config-ts": "^0.0.1",
+    "@huamurui/prettier": "^0.0.2",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
-    "@suemor/eslint-config-ts": "^1.1.0",
-    "@suemor/prettier": "^1.1.0",
     "@types/express": "^4.17.13",
     "@types/jest": "29.2.4",
     "@types/node": "18.11.18",

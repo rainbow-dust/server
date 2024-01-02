@@ -2,20 +2,20 @@ version: '3.8'
 
 services:
   app:
-    container_name: juejin-core
-    image: suemor/juejin-core:latest
-    command: node index.js --db_host=juejin_mongo --color
+    container_name: furina-server
+    image: huamurui/furina-server:latest
+    command: node index.js --db_host=furina_mongo --color
     environment:
       - TZ=Asia/Shanghai
       - NODE_ENV=production
     volumes:
-      - ./data/juejin-core:/root/.juejin-core
+      - ./data/furina-server:/root/.furina-server
     ports:
-      - '7498:7498'
+      - '9527:9527'
     depends_on:
-      - juejin_mongo
+      - furina_mongo
     links:
-      - juejin_mongo
+      - furina_mongo
     networks:
       - app-network
     restart: always
@@ -26,8 +26,8 @@ services:
       retries: 5
       start_period: 30s
 
-  juejin_mongo:
-    container_name: juejin_mongo
+  furina_mongo:
+    container_name: furina_mongo
     image: mongo
     volumes:
       - ./data/db:/data/db

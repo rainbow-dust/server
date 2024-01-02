@@ -1,5 +1,5 @@
 module.exports = {
-  extends: ['@suemor/eslint-config-ts'],
+  extends: ['@huamurui/eslint-config-ts'],
   root: true,
   plugins: ['unused-imports', '@typescript-eslint'],
   rules: {

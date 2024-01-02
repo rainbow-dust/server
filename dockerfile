@@ -10,4 +10,4 @@ FROM node:16-alpine
 WORKDIR /app
 COPY --from=builder /app/out .
 ENV TZ=Asia/Shanghai
-EXPOSE 7498
+EXPOSE 9527

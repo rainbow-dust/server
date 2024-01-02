@@ -1,1 +1,1 @@
-module.exports = require("@suemor/prettier")
+module.exports = require("@huamurui/prettier")
