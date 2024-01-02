@@ -68,6 +68,7 @@
     "node-machine-id": "^1.1.12",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
+    "prettier": "^3.1.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "zx-cjs": "7.0.7-0"
@@ -90,7 +91,6 @@
     "husky": "^8.0.3",
     "jest": "29.3.1",
     "lint-staged": "^13.1.0",
-    "prettier": "^2.3.2",
     "rimraf": "^4.0.5",
     "source-map-support": "^0.5.20",
     "supertest": "^6.1.3",

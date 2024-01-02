@@ -1,4 +1,4 @@
-import { value argv } from 'zx-cjs'
+import { argv } from 'zx-cjs'
 
 export const PORT = 9527
 export const API_VERSION = 1
