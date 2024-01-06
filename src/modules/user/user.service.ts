@@ -2,11 +2,7 @@
 import { Model } from 'mongoose'
 import { nanoid } from 'nanoid'
 
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common'
+import { ForbiddenException, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 
 import { UserModel } from '~/modules/user/user.model'
@@ -38,16 +34,17 @@ export class UserService {
     // 检测是否有重名
     const hasUser = await this.userModel.findOne({ username: user.username })
     if (hasUser) {
-      throw new BadRequestException('用户名已存在')
+      throw new ForbiddenException('用户名已存在')
     }
     user.password = hashSync(user.password, 6)
     const authCode = nanoid(10)
 
     const res = await this.userModel.create({
       ...user,
+      admin: !hasMaster,
       authCode,
     })
-    return { username: res.username, authCode: res.authCode }
+    return { username: res.username, authCode: res.authCode, admin: res.admin }
   }
 
   async login(username: string, password: string) {
@@ -65,24 +62,45 @@ export class UserService {
     return user
   }
 
-  async getUserInfo(username) {
-    if (!username) throw new BadRequestException('用户名不能为空~')
-
-    const userInfo = await this.userModel
-      .findOne({ username })
-      .select(['-password', '-authCode', '-created'])
-    if (!userInfo) {
-      throw new BadRequestException('用户名不存在~')
-    }
-    return userInfo
-  }
-
   async hasMaster() {
     return !!(await this.userModel.count())
   }
 
-  patchUserData(data: UserDetailDto, user: UserModel) {
-    console.log(data)
-    return this.userModel.updateOne({ _id: user._id }, data)
+  async patchUserData(data: UserDetailDto, CurrentUser: UserModel) {
+    const _user = await this.userModel.findById(CurrentUser._id)
+    if (!_user?.admin && data._id != _user._id) {
+      throw new ForbiddenException('无修改权限')
+    }
+    if (data?.password) {
+      data.password = hashSync(data.password, 6)
+      data['authCode'] = nanoid(10)
+      return this.userModel.updateOne({ _id: _user._id }, data)
+    }
+    return this.userModel.updateOne({ _id: _user._id }, data)
+  }
+
+  getAdminInfo() {
+    return this.userModel.findOne({ admin: true })
+  }
+
+  authorRank(size: number) {
+    return this.userModel.aggregate([
+      {
+        $sample: {
+          size,
+        },
+      },
+      {
+        $project: {
+          username: 1,
+          avatar: 1,
+          introduce: 1,
+        },
+      },
+    ])
+  }
+
+  get model() {
+    return this.userModel
   }
 }

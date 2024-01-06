@@ -18,7 +18,7 @@ export class AuthService {
   ) {}
 
   async signToken(openid: string) {
-    const user = await this.userModel.findOne({ openid })
+    const user = await this.userModel.findById(openid)
     if (!user) {
       throw new MasterLostException()
     }

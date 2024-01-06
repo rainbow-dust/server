@@ -1,5 +1,6 @@
 import { Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
+
 import { API_VERSION, CROSS_DOMAIN, PORT } from './app.config'
 import { AppModule } from './app.module'
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor'
@@ -44,7 +45,7 @@ export async function bootstrap() {
     const { DocumentBuilder, SwaggerModule } = await import('@nestjs/swagger')
     const options = new DocumentBuilder()
       .setTitle('API')
-      .setDescription('LostAndFound API')
+      .setDescription('API description' + ` api/v${API_VERSION}`)
       .setVersion(`${API_VERSION}`)
       .addSecurity('bearer', {
         type: 'http',
@@ -54,6 +55,7 @@ export async function bootstrap() {
       .build()
     const document = SwaggerModule.createDocument(app, options)
     SwaggerModule.setup('api-docs', app, document)
+    // 'api-docs' then you can get doc file at './api-docs-json' or './api-docs-yaml'
   }
 
   await app.listen(+PORT, '0.0.0.0', async () => {
