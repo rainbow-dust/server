@@ -14,9 +14,8 @@ export const databaseModels = [
   CommentModel,
   CollectModel,
   NoticeModel,
-].map((model: any) => {
-  console.log(model.name)
-  return MongooseModule.forFeature([
+].map((model: any) =>
+  MongooseModule.forFeature([
     { name: model.name, schema: SchemaFactory.createForClass(model) },
-  ])
-})
+  ]),
+)
