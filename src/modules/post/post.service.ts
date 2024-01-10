@@ -8,13 +8,13 @@ import {
 import { InjectModel } from '@nestjs/mongoose'
 
 import { UserModel } from '../user/user.model'
-import { PostDto, PostList, Sort } from './post.dto'
+import { PostDto, PostList, QueryType, Sort } from './post.dto'
 import { PartialPostModel, PostModel } from './post.model'
 
 @Injectable()
 export class PostService {
   constructor(
-    @InjectModel(PostModel.name)
+    @InjectModel('PostModel')
     private readonly postModel: Model<PostModel>,
   ) {}
   async create(post: PostDto, user: UserModel) {
@@ -60,7 +60,14 @@ export class PostService {
 
   // FIXME 无法查询到当前页面之外的文章，需要分组查询
   async postPaginate(post: PostList) {
-    const { pageCurrent, pageSize, tag, sort } = post
+    const { pageCurrent, pageSize, tags, sort, type } = post
+
+    if (type === QueryType.user_preference) {
+      // TODO
+    }
+
+    // ...
+
     const postList = await this.postModel.populate(
       await this.postModel.aggregate([
         {
@@ -81,7 +88,7 @@ export class PostService {
         },
         {
           $match: {
-            tags: tag ? { $eq: tag } : { $exists: true },
+            tags: { $in: tags },
           },
         },
         {

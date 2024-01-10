@@ -1,6 +1,5 @@
 import {
   ArrayUnique,
-  IsBoolean,
   IsEnum,
   IsOptional,
   IsString,
@@ -11,10 +10,17 @@ import { paginateDto } from '../..//shared/dto/pager.dto'
 
 export enum Sort {
   Newest = 'newest',
-  Three_days_hottest = 'three_days_hottest',
-  Weekly_hottest = 'weekly_hottest',
-  Monthly_hottest = 'monthly_hottest',
+  ThreeDaysHottest = 'three_days_hottest',
+  WeeklyHottest = 'weekly_hottest',
+  MonthlyHottest = 'monthly_hottest',
   Hottest = 'hottest',
+}
+
+export enum QueryType {
+  user_preference = 'user_preference',
+  tag_exact = 'tag_exact',
+  user_post_exact = 'user_post_exact',
+  ids_exact = 'ids_exact',
 }
 
 export class PostDto {
@@ -30,19 +36,27 @@ export class PostDto {
 
   @ArrayUnique()
   tags?: string[]
-
-  @IsBoolean({ message: '广告' })
-  ad: boolean
 }
 
 export class PostList extends paginateDto {
-  @IsString()
+  @ArrayUnique()
   @IsOptional()
-  tag?: string
+  tags?: string[]
 
   @IsEnum(Sort)
   @IsOptional()
   sort?: Sort
+
+  @IsEnum(QueryType)
+  @IsOptional()
+  type?: QueryType
+
+  @IsOptional()
+  @ArrayUnique()
+  ids?: string[]
+
+  @IsOptional()
+  user_id: string
 }
 
 export class PaginateDto {

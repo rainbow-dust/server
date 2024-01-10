@@ -21,7 +21,7 @@ function hashSync(password: string, salt: number) {
 @Injectable()
 export class UserService {
   constructor(
-    @InjectModel(UserModel.name)
+    @InjectModel('UserModel')
     private readonly userModel: Model<UserModel>,
   ) {}
   async createUser(user: UserDto) {

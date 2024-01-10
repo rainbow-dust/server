@@ -8,7 +8,6 @@ import {
   Patch,
   Post,
   Put,
-  Query,
 } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
 
@@ -27,11 +26,10 @@ import { PostService } from './post.service'
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
-  @Post('/')
+  @Post('/add')
   @Auth()
-  async create(@Body() post: PostDto) {
-    console.log(post, 'post')
-    return await this.postService.create(post, post as any)
+  async create(@Body() post: PostDto, @CurrentUser() user: UserModel) {
+    return await this.postService.create(post, user)
   }
 
   @Get(':id')
@@ -40,9 +38,9 @@ export class PostController {
     return this.postService.findPostById(id)
   }
 
-  @Get('/')
+  @Post('/query/list')
   @ApiOperation({ summary: '分页获取博文' })
-  async getPaginate(@Query() postList: PostList) {
+  async getPaginate(@Body() postList: PostList) {
     return this.postService.postPaginate(postList)
   }
 

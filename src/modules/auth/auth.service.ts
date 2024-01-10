@@ -12,7 +12,7 @@ import { JwtPayload } from './interfaces/jwt-payload.interface'
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(UserModel.name)
+    @InjectModel('UserModel')
     private readonly userModel: Model<UserModel>,
     private readonly jwtService: JwtService,
   ) {}
