@@ -1,5 +1,8 @@
+import { join } from 'path'
+
 import { Module } from '@nestjs/common'
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core'
+import { ServeStaticModule } from '@nestjs/serve-static'
 
 import { AppController } from './app.controller'
 import { AllExceptionsFilter } from './common/filters/any-exception.filter'
@@ -9,6 +12,7 @@ import { CommentModule } from './modules/comment/comment.module'
 import { NoticeModule } from './modules/notice/notice.module'
 import { PostModule } from './modules/post/post.module'
 import { TagModule } from './modules/tag/tag.module'
+import { UploadModule } from './modules/upload/upload.module'
 import { UserModule } from './modules/user/user.module'
 import { DatabaseModule } from './processors/databse/database.module'
 import { HelperModule } from './processors/helper/helper.module'
@@ -23,6 +27,11 @@ import { HelperModule } from './processors/helper/helper.module'
     CommentModule,
     CollectModule,
     NoticeModule,
+    UploadModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
+    }),
   ],
   controllers: [AppController],
 
