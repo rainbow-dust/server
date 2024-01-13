@@ -22,5 +22,5 @@ export const AXIOS_CONFIG = {
 
 export const SECURITY = {
   jwtSecret: 'furina',
-  jwtExpire: '7d',
+  jwtExpire: 60 * 60 * 24 * 7,
 }

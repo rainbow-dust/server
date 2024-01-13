@@ -18,7 +18,7 @@ export class AuthService {
   ) {}
 
   async signToken(openid: string) {
-    const user = await this.userModel.findById(openid)
+    const user = await this.userModel.findById(openid, { authCode: 1 })
     if (!user) {
       throw new MasterLostException()
     }
@@ -26,18 +26,19 @@ export class AuthService {
     const payload = {
       authCode,
     }
-
     return this.jwtService.sign(payload)
   }
 
   async verifyPayload(payload: JwtPayload) {
-    const user = await this.userModel.findOne({
-      openid: payload.authCode,
-    })
+    const user = await this.userModel.findOne(
+      {
+        authCode: payload.authCode,
+      },
+      { authCode: 1 },
+    )
     if (!user) {
       throw new MasterLostException()
     }
-
     return user && user.authCode === payload.authCode ? user : null
   }
 }

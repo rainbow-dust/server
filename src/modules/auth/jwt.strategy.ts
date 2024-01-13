@@ -1,11 +1,3 @@
-/*
- * @Author: Innei
- * @Date: 2020-04-30 12:21:51
- * @LastEditTime: 2020-07-31 19:52:35
- * @LastEditors: Innei
- * @FilePath: /mx-server/src/auth/jwt.strategy.ts
- * @Coding with Love
- */
 import { ExtractJwt, Strategy, StrategyOptions } from 'passport-jwt'
 
 import { Injectable, UnauthorizedException } from '@nestjs/common'
@@ -26,10 +18,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
+    if (Date.now() > payload.exp * 1000) {
+      throw new UnauthorizedException('token已过期')
+    }
     const user = await this.authService.verifyPayload(payload)
+    console.log('user', user)
     if (user) {
       return user
     }
-    throw new UnauthorizedException('身份已过期')
   }
 }

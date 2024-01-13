@@ -71,6 +71,14 @@ export class PostService {
     const postList = await this.postModel.populate(
       await this.postModel.aggregate([
         {
+          $lookup: {
+            from: 'users',
+            localField: 'user',
+            foreignField: '_id',
+            as: 'user',
+          },
+        },
+        {
           $project: {
             content: {
               $substrCP: ['$content', 1, 100],
@@ -79,11 +87,13 @@ export class PostService {
             title: 1,
             tags: 1,
             created: 1,
-            ad: 1,
-            user: 1,
             cover: 1,
             read: 1,
             updatedAt: 1,
+            user: {
+              $arrayElemAt: ['$user', 0],
+            },
+            // 我希望这里能够返回 user 的信息而不是什么id...
           },
         },
         // {
