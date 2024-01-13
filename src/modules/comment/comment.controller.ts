@@ -1,5 +1,7 @@
-import { Body, Controller, Post } from '@nestjs/common'
+import { Body, Controller, Get, Param, Post } from '@nestjs/common'
+import { ApiOperation } from '@nestjs/swagger'
 
+import { Auth } from '~/common/decorator/auth.decorator'
 import { CurrentUser } from '~/common/decorator/current-user.decorator'
 import { ApiName } from '~/common/decorator/openapi.decorator'
 
@@ -11,9 +13,20 @@ import { CommentService } from './comment.service'
 @ApiName
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
+
   @Post('/add')
-  // @Auth()
+  @Auth()
   async create(@Body() comment: CommentDto, @CurrentUser() user: UserModel) {
-    return await this.commentService.create(comment, user)
+    if (comment.mentionee) {
+      return this.commentService.createSecond(comment, user)
+    } else {
+      return this.commentService.createFirst(comment, user)
+    }
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: '获取二级评论' })
+  async getSecond(@Param('id') id: string) {
+    return this.commentService.getSecond(id)
   }
 }

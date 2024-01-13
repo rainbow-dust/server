@@ -24,11 +24,10 @@ export class CommentModel extends Document {
     type: () => mongoose.Schema.Types.ObjectId,
     ref: 'UserModel',
   })
-  creator: UserModel
+  author: UserModel
 
-  @Prop([{ type: () => mongoose.Schema.Types.ObjectId, ref: 'PostModel' }])
-  @IsArray()
-  post: PostModel[]
+  @Prop({ type: () => mongoose.Schema.Types.ObjectId, ref: 'PostModel' })
+  postId: PostModel
 
   @Prop()
   @IsArray()
@@ -36,10 +35,9 @@ export class CommentModel extends Document {
 }
 
 export interface NestedComment {
-  beRepliedUser: UserModel
-  beRepliedComment: CommentModel
+  mentioneeAuthor: UserModel
+  mentionee: CommentModel
   creator: UserModel
   content: string
-  post: PostModel
   created: Date
 }

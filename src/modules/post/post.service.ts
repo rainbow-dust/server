@@ -35,6 +35,15 @@ export class PostService {
     post.id = post._id
     const relatedPost = await this.postModel.aggregate([
       {
+        // 联表查询，comments 里有一堆 id，需要转换成具体的评论
+        $lookup: {
+          from: 'comments',
+          localField: 'comments',
+          foreignField: '_id',
+          as: 'comments',
+        },
+      },
+      {
         $project: {
           title: 1,
           read: 1,
