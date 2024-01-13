@@ -8,7 +8,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose'
 
 import { UserModel } from '../user/user.model'
-import { PostDto, PostList, QueryType, Sort } from './post.dto'
+import { PostDto, PostList, QueryType } from './post.dto'
 import { PartialPostModel, PostModel } from './post.model'
 
 @Injectable()
@@ -30,7 +30,7 @@ export class PostService {
     await this.postModel.updateOne({ _id: id }, { $inc: { read: 1 } })
     const post = await this.postModel
       .findById(id)
-      .populate('category user')
+      // .populate('category user')
       .lean()
     post.id = post._id
     const relatedPost = await this.postModel.aggregate([
@@ -86,17 +86,17 @@ export class PostService {
             updatedAt: 1,
           },
         },
-        {
-          $match: {
-            tags: { $in: tags },
-          },
-        },
-        {
-          $sort: {
-            read: sort != Sort.Newest ? -1 : 1,
-            created: -1,
-          },
-        },
+        // {
+        //   $match: {
+        //     tags: { $in: tags },
+        //   },
+        // },
+        // {
+        //   $sort: {
+        //     read: sort != Sort.Newest ? -1 : 1,
+        //     created: -1,
+        //   },
+        // },
         {
           $skip: pageSize * (pageCurrent - 1),
         },
