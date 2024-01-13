@@ -54,6 +54,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          push: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }},huamurui/furina-server:latest
           labels: ${{ steps.meta.outputs.labels }}
