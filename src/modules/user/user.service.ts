@@ -5,7 +5,6 @@ import { nanoid } from 'nanoid'
 import { ForbiddenException, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 
-import { SECURITY } from '~/app.config'
 import { UserModel } from '~/modules/user/user.model'
 import { sleep } from '~/utils/tool.util'
 
@@ -18,7 +17,7 @@ export class UserService {
     private readonly userModel: Model<UserModel>,
   ) {}
   async createUser(user: UserDto) {
-    const hasMaster = await this.hasMaster()
+    const hasMaster = !!(await this.userModel.count())
 
     if (!hasMaster) {
       // 如果是第一个用户，那么就是主人，会有一个特殊权限，但...也无所谓
@@ -29,7 +28,7 @@ export class UserService {
     if (hasUser) {
       throw new ForbiddenException('用户名已存在')
     }
-    user.password = hashSync(user.password, SECURITY.jwtSecret)
+    user.password = hashSync(user.password, 7)
     const authCode = nanoid(10)
 
     const res = await this.userModel.create({
@@ -55,42 +54,72 @@ export class UserService {
     return user
   }
 
-  async hasMaster() {
-    return !!(await this.userModel.count())
-  }
-
   async patchUserData(data: UserDetailDto, CurrentUser: UserModel) {
     const _user = await this.userModel.findById(CurrentUser._id)
     if (!_user?.admin && data._id != _user._id) {
       throw new ForbiddenException('无修改权限')
     }
     if (data?.password) {
-      data.password = hashSync(data.password, SECURITY.jwtSecret)
+      data.password = hashSync(data.password, 7)
       data['authCode'] = nanoid(10)
       return this.userModel.updateOne({ _id: _user._id }, data)
     }
     return this.userModel.updateOne({ _id: _user._id }, data)
   }
 
-  getAdminInfo() {
-    return this.userModel.findOne({ admin: true })
+  async follow(mentionee: string, user: UserModel) {
+    const _mentionee = await this.userModel.findOne({ username: mentionee })
+    if (!_mentionee) {
+      throw new ForbiddenException('被关注者不存在')
+    }
+    const _user = await this.userModel.findById(user._id)
+    if (!_user) {
+      throw new ForbiddenException('关注者不存在')
+    }
+    const hasFollowed = await this.userModel.findOne({
+      _id: _user._id,
+      followings: _mentionee._id,
+    })
+    if (hasFollowed) {
+      throw new ForbiddenException('已关注')
+    }
+
+    const op1 = this.userModel.updateOne(
+      { _id: _user._id },
+      { $push: { followings: _mentionee._id } },
+    )
+    const op2 = this.userModel.updateOne(
+      { _id: _mentionee._id },
+      { $push: { followers: _user._id } },
+    )
+    return Promise.all([op1, op2])
   }
 
-  authorRank(size: number) {
-    return this.userModel.aggregate([
-      {
-        $sample: {
-          size,
-        },
-      },
-      {
-        $project: {
-          username: 1,
-          avatar: 1,
-          introduce: 1,
-        },
-      },
-    ])
+  async unfollow(mentionee: string, user: UserModel) {
+    const _mentionee = await this.userModel.findOne({ username: mentionee })
+    if (!_mentionee) {
+      throw new ForbiddenException('被关注者不存在')
+    }
+    const _user = await this.userModel.findById(user._id)
+    if (!_user) {
+      throw new ForbiddenException('关注者不存在')
+    }
+    const hasFollowed = await this.userModel.findOne({
+      _id: _user._id,
+      followings: _mentionee._id,
+    })
+    if (!hasFollowed) {
+      throw new ForbiddenException('未关注')
+    }
+    const op1 = this.userModel.updateOne(
+      { _id: _user._id },
+      { $pull: { followings: _mentionee._id } },
+    )
+    const op2 = this.userModel.updateOne(
+      { _id: _mentionee._id },
+      { $pull: { followers: _user._id } },
+    )
+    return Promise.all([op1, op2])
   }
 
   get model() {

@@ -32,7 +32,7 @@ export class UserModel extends Document {
   avatar: string
 
   @Prop()
-  introduce: string
+  bio: string
 
   @Prop()
   admin: boolean
@@ -42,7 +42,7 @@ export class UserModel extends Document {
     ref: 'UserModel',
   })
   @IsArray()
-  followees: UserModel[]
+  followings: UserModel[]
 
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,

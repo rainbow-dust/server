@@ -46,18 +46,6 @@ export class UserController {
     }
   }
 
-  @Get('admin')
-  @ApiOperation({ summary: '获取管理员信息' })
-  async adminInfo() {
-    return this.userService.getAdminInfo()
-  }
-
-  @Get()
-  @ApiOperation({ summary: '随机获得指定数量的用户信息' })
-  async authorRank(@Param('size') size: number) {
-    return this.userService.authorRank(size)
-  }
-
   @Patch()
   @Auth()
   async patchUserData(
@@ -88,4 +76,31 @@ export class UserController {
   getUserInfo(@Param('username') username: string) {
     return this.userService.model.findOne({ username })
   }
+
+  @Post('follow/:mentionee')
+  @ApiOperation({ summary: '关注' })
+  @Auth()
+  async follow(@Param('mentionee') mentionee: string, @CurrentUser() user) {
+    return this.userService.follow(mentionee, user)
+  }
+
+  @Post('unfollow/:mentionee')
+  @ApiOperation({ summary: '取消关注' })
+  @Auth()
+  async unfollow(@Param('mentionee') mentionee: string, @CurrentUser() user) {
+    return this.userService.unfollow(mentionee, user)
+  }
+
+  // 如果你是把数据直接塞进了 user 里的话...是不是直接就能拿到...
+  // @Get('following/:username')
+  // @ApiOperation({ summary: '获取指定用户的关注列表' })
+  // async getFollowing(@Param('username') username: string) {
+  //   return this.userService.getFollowing(username)
+  // }
+
+  // @Get('follower/:username')
+  // @ApiOperation({ summary: '获取指定用户的被关注列表' })
+  // async getFollower(@Param('username') username: string) {
+  //   return this.userService.getFollower(username)
+  // }
 }
