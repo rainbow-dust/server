@@ -13,7 +13,11 @@ export class UploadService {
     }
 
     const extname = path.extname(file.originalname)
-    const filename = `${Date.now()}${extname}`
+    const filename = `${file.originalname
+      .replace(extname, '')
+      .toLowerCase()
+      .split(' ')
+      .join('_')}-${Date.now()}${extname}`
     const filepath = path.join(uploadDir, filename)
 
     try {

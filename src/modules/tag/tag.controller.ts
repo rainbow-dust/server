@@ -8,4 +8,6 @@ import { TagService } from './tag.service'
 @ApiName
 export class TagController {
   constructor(private readonly tagService: TagService) {}
+
+  // tag 这里... 应该是搜索查询很频繁的。
 }

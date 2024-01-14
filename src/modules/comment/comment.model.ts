@@ -31,7 +31,10 @@ export class CommentModel extends Document {
 
   @Prop()
   @IsArray()
-  nestedComment: NestedComment[]
+  nestedComments: NestedComment[]
+
+  @Prop()
+  nestedCommentsCount: number
 }
 
 export interface NestedComment {

@@ -39,7 +39,7 @@ export class PostService {
         $lookup: {
           from: 'comments',
           localField: 'comments',
-          foreignField: '_id',
+          foreignField: 'commentId',
           as: 'comments',
         },
       },
@@ -97,6 +97,7 @@ export class PostService {
             tags: 1,
             created: 1,
             cover: 1,
+            picUrls: 1,
             read: 1,
             updatedAt: 1,
             user: {

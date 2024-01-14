@@ -28,6 +28,13 @@ export class PostModel extends Document {
   cover?: string
 
   @Prop()
+  @IsArray()
+  picUrls: string[]
+
+  @Prop()
+  video?: string
+
+  @Prop()
   tags?: TagModel[]
 
   @Prop({ default: 0 })
@@ -45,6 +52,20 @@ export class PostModel extends Document {
   @Prop([{ type: () => mongoose.Schema.Types.ObjectId, ref: 'CommentModel' }])
   @IsArray()
   comments: CommentModel[]
+
+  @Prop([
+    {
+      type: () => mongoose.Schema.Types.ObjectId,
+    },
+  ])
+  @IsArray()
+  likes: UserModel[]
+
+  @Prop()
+  likesCount: number
+
+  @Prop()
+  commentsCount: number
 }
 
 export class PartialPostModel extends PartialType(PostModel) {}
