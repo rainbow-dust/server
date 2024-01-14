@@ -154,6 +154,42 @@ export class PostService {
     return
   }
 
+  async like(id: string, user: UserModel) {
+    const _post = await this.postModel.findById(id)
+    if (!_post) {
+      throw new BadRequestException('文章不存在')
+    }
+    const hasLiked = await this.postModel.findOne({
+      _id: id,
+      likes: user._id,
+    })
+    if (hasLiked) {
+      throw new BadRequestException('已点赞')
+    }
+    return await this.postModel.updateOne(
+      { _id: id },
+      { $push: { likes: user._id } },
+    )
+  }
+
+  async unlike(id: string, user: UserModel) {
+    const _post = await this.postModel.findById(id)
+    if (!_post) {
+      throw new BadRequestException('文章不存在')
+    }
+    const hasLiked = await this.postModel.findOne({
+      _id: id,
+      likes: user._id,
+    })
+    if (!hasLiked) {
+      throw new BadRequestException('未点赞')
+    }
+    return await this.postModel.updateOne(
+      { _id: id },
+      { $pull: { likes: user._id } },
+    )
+  }
+
   get model() {
     return this.postModel
   }

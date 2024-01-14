@@ -81,4 +81,19 @@ export class PostController {
     }
     return await this.postService.updateById(params.id, body)
   }
+
+  // 怎么说呢...这里应该..换种设计
+  // 列表查询的时候，如果有auth，就同时也给个isLike的字段
+  // 然后不管怎么点，就是同一个接口，发现已经点过了，就unlike，没点过就like，然后返回结果到前端
+  @Post('/like/:id')
+  @Auth()
+  async like(@Param('id') id: string, @CurrentUser() user: UserModel) {
+    return await this.postService.like(id, user)
+  }
+
+  @Post('/unlike/:id')
+  @Auth()
+  async unlike(@Param('id') id: string, @CurrentUser() user: UserModel) {
+    return await this.postService.unlike(id, user)
+  }
 }
