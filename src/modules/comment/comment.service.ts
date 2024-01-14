@@ -18,23 +18,23 @@ export class CommentService {
   ) {}
 
   async createFirst(comment: CommentDto, user: UserModel) {
-    const post = await this.postModel.findById(comment.postId)
+    const post = await this.postModel.findById(comment.post_id)
     if (!post) {
       throw new Error('文章不存在')
     }
     const co = await this.commentModel.create({
       ...comment,
-      user: user._id,
+      author: user._id,
     })
 
     return this.postModel.findByIdAndUpdate(
-      comment.postId,
+      comment.post_id,
       {
         $push: {
           comments: {
-            commentId: co._id,
+            comment_id: co._id,
             content: comment.content, // 一级的内容还是存两份...
-            user: user._id,
+            author: user._id,
           },
         },
       },
@@ -42,22 +42,43 @@ export class CommentService {
     )
   }
   async createSecond(comment: CommentDto, user: UserModel) {
-    const parentComment = await this.commentModel.findById(comment.mentionee)
-    if (!parentComment) {
-      throw new Error('回复的评论不存在')
+    // 找到一级评论
+    const co = await this.commentModel.findById(comment.comment_id)
+    if (!co) {
+      throw new Error('评论不存在')
     }
-    return this.commentModel.findByIdAndUpdate(
-      comment.mentionee,
+    // 找到文章下的这个一级评论并更新一级评论数...
+    // 难搞...好像真不如按范式来...或者完全不搞直接嵌套...
+    await this.postModel.findOneAndUpdate(
+      { _id: co.post_id },
+      {
+        $inc: { 'comments.$[comment].nested_comments_count': 1 },
+      },
+      {
+        arrayFilters: [{ 'comment.comment_id': comment.comment_id }],
+      },
+    )
+
+    // 创建二级评论
+    const nested_comment = await this.commentModel.findOneAndUpdate(
+      { _id: comment.comment_id },
       {
         $push: {
-          nestedComment: {
-            ...comment,
-            user: user._id,
+          nested_comments: {
+            mentionee_author: comment.mentionee_author,
+            mentionee: comment.mentionee,
+            creator: user._id,
+            content: comment.content,
           },
         },
       },
       { new: true },
     )
+
+    return {
+      comment: co,
+      nested_comment,
+    }
   }
 
   async getSecond(id: string) {}

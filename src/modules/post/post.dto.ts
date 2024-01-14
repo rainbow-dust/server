@@ -39,7 +39,7 @@ export class PostDto {
 
   @IsOptional()
   @ArrayUnique()
-  picUrls?: string[]
+  pic_urls?: string[]
 }
 
 export class PostList extends paginateDto {

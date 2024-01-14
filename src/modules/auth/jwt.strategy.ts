@@ -22,7 +22,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('token已过期')
     }
     const user = await this.authService.verifyPayload(payload)
-    console.log('user', user)
     if (user) {
       return user
     }

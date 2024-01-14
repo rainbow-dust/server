@@ -27,20 +27,29 @@ export class CommentModel extends Document {
   author: UserModel
 
   @Prop({ type: () => mongoose.Schema.Types.ObjectId, ref: 'PostModel' })
-  postId: PostModel
+  post_id: PostModel
 
   @Prop()
   @IsArray()
-  nestedComments: NestedComment[]
+  nested_comments: NestedComment[]
 
-  @Prop()
-  nestedCommentsCount: number
+  @Prop({ default: 0 })
+  nested_comments_count: number
 }
 
-export interface NestedComment {
-  mentioneeAuthor: UserModel
+@Schema({
+  collection: 'nested_comments',
+  toObject: { virtuals: true, getters: true },
+  timestamps: {
+    createdAt: 'created',
+    updatedAt: false,
+  },
+  versionKey: false,
+})
+export class NestedComment extends Document {
+  mentionee_author: UserModel
   mentionee: CommentModel
-  creator: UserModel
+  author: UserModel
   content: string
   created: Date
 }

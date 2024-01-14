@@ -12,8 +12,8 @@ import { UserModel } from '../user/user.model'
   collection: 'posts',
   toObject: { virtuals: true, getters: true },
   timestamps: {
-    createdAt: 'created',
-    updatedAt: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
   },
   versionKey: false,
 })
@@ -29,7 +29,7 @@ export class PostModel extends Document {
 
   @Prop()
   @IsArray()
-  picUrls: string[]
+  pic_urls: string[]
 
   @Prop()
   video?: string
@@ -61,11 +61,11 @@ export class PostModel extends Document {
   @IsArray()
   likes: UserModel[]
 
-  @Prop()
-  likesCount: number
+  @Prop({ default: 0 })
+  likes_count: number
 
-  @Prop()
-  commentsCount: number
+  @Prop({ default: 0 })
+  comments_count: number
 }
 
 export class PartialPostModel extends PartialType(PostModel) {}
