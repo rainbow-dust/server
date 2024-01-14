@@ -1,22 +1,15 @@
-// import { compareSync, hashSync } from 'bcrypt'
+import { compareSync, hashSync } from 'bcrypt'
 import { Model } from 'mongoose'
 import { nanoid } from 'nanoid'
 
 import { ForbiddenException, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 
+import { SECURITY } from '~/app.config'
 import { UserModel } from '~/modules/user/user.model'
 import { sleep } from '~/utils/tool.util'
 
 import { UserDetailDto, UserDto } from './user.dto'
-
-function compareSync(password: string, hash: string) {
-  return password === hash
-}
-
-function hashSync(password: string, salt: number) {
-  return password
-}
 
 @Injectable()
 export class UserService {
@@ -36,7 +29,7 @@ export class UserService {
     if (hasUser) {
       throw new ForbiddenException('用户名已存在')
     }
-    user.password = hashSync(user.password, 6)
+    user.password = hashSync(user.password, SECURITY.jwtSecret)
     const authCode = nanoid(10)
 
     const res = await this.userModel.create({
@@ -72,7 +65,7 @@ export class UserService {
       throw new ForbiddenException('无修改权限')
     }
     if (data?.password) {
-      data.password = hashSync(data.password, 6)
+      data.password = hashSync(data.password, SECURITY.jwtSecret)
       data['authCode'] = nanoid(10)
       return this.userModel.updateOne({ _id: _user._id }, data)
     }
