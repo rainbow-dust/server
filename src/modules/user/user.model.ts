@@ -42,7 +42,10 @@ export class UserModel extends Document {
     ref: 'UserModel',
   })
   @IsArray()
-  followings: UserModel[]
+  followees: UserModel[]
+
+  @Prop({})
+  followee_count: number
 
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,
@@ -50,6 +53,9 @@ export class UserModel extends Document {
   })
   @IsArray()
   followers: UserModel[]
+
+  @Prop({})
+  follower_count: number
 
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,
@@ -60,6 +66,12 @@ export class UserModel extends Document {
 
   @IsArray()
   collects: CollectModel[]
+
+  @Prop()
+  be_liked_count: number
+
+  @Prop()
+  be_collected_count: number
 
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,

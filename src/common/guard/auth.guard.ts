@@ -12,6 +12,7 @@ export class AuthGuard extends _AuthGuard('jwt') implements CanActivate {
   override async canActivate(context: ExecutionContext): Promise<any> {
     const request = this.getRequest(context)
 
+    console.log('request', request.user)
     if (typeof request.user !== 'undefined') {
       return true
     }

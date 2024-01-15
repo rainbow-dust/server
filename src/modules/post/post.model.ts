@@ -37,17 +37,15 @@ export class PostModel extends Document {
   @Prop()
   tags?: TagModel[]
 
-  @Prop({ default: 0 })
-  read: number
-
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,
   })
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,
     ref: 'UserModel',
+    index: true,
   })
-  user: UserModel
+  author: UserModel
 
   @Prop([{ type: () => mongoose.Schema.Types.ObjectId, ref: 'CommentModel' }])
   @IsArray()
@@ -60,6 +58,9 @@ export class PostModel extends Document {
   ])
   @IsArray()
   likes: UserModel[]
+
+  @Prop({ default: 0 })
+  read: number
 
   @Prop({ default: 0 })
   likes_count: number

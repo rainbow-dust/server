@@ -18,7 +18,7 @@ export class PostService {
     private readonly postModel: Model<PostModel>,
   ) {}
   async create(post: PostDto, user: UserModel) {
-    return this.postModel.create({ ...post, user: user._id })
+    return this.postModel.create({ ...post, author: user._id })
   }
 
   async findPostById(id: string) {
@@ -103,7 +103,6 @@ export class PostService {
             user: {
               $arrayElemAt: ['$user', 0],
             },
-            // 我希望这里能够返回 user 的信息而不是什么id...
           },
         },
         // {

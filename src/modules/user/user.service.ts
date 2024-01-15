@@ -67,6 +67,20 @@ export class UserService {
     return this.userModel.updateOne({ _id: _user._id }, data)
   }
 
+  async getUserInfo(username: string, currentUser?: UserModel) {
+    const _user = await this.userModel.findOne({ username })
+    if (!_user) {
+      throw new ForbiddenException('用户不存在')
+    }
+    console.log(currentUser)
+    if (currentUser) {
+      _user['is_followed'] = !!_user.followers.find(
+        (follower) => follower === currentUser._id,
+      )
+    }
+    return _user
+  }
+
   async follow(mentionee: string, user: UserModel) {
     const _mentionee = await this.userModel.findOne({ username: mentionee })
     if (!_mentionee) {
@@ -78,7 +92,7 @@ export class UserService {
     }
     const hasFollowed = await this.userModel.findOne({
       _id: _user._id,
-      followings: _mentionee._id,
+      followees: _mentionee._id,
     })
     if (hasFollowed) {
       throw new ForbiddenException('已关注')
@@ -86,7 +100,7 @@ export class UserService {
 
     const op1 = this.userModel.updateOne(
       { _id: _user._id },
-      { $push: { followings: _mentionee._id } },
+      { $push: { followees: _mentionee._id } },
     )
     const op2 = this.userModel.updateOne(
       { _id: _mentionee._id },
@@ -106,14 +120,14 @@ export class UserService {
     }
     const hasFollowed = await this.userModel.findOne({
       _id: _user._id,
-      followings: _mentionee._id,
+      followees: _mentionee._id,
     })
     if (!hasFollowed) {
       throw new ForbiddenException('未关注')
     }
     const op1 = this.userModel.updateOne(
       { _id: _user._id },
-      { $pull: { followings: _mentionee._id } },
+      { $pull: { followees: _mentionee._id } },
     )
     const op2 = this.userModel.updateOne(
       { _id: _mentionee._id },

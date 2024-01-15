@@ -48,7 +48,7 @@ export class PostController {
   @Auth()
   async deletePost(@Param('id') id: string, @CurrentUser() user: UserModel) {
     const _post = await this.postService.model.findById(id)
-    if (_post?.user !== user._id && !user.admin) {
+    if (_post?.author !== user._id && !user.admin) {
       throw new ForbiddenException('没有权限删除')
     }
     return await this.postService.deletePost(id)
@@ -62,7 +62,7 @@ export class PostController {
     @CurrentUser() user: UserModel,
   ) {
     const _post = await this.postService.model.findById(params.id)
-    if (_post?.user !== user._id && !user.admin) {
+    if (_post?.author !== user._id && !user.admin) {
       throw new ForbiddenException('没有权限修改')
     }
     return await this.postService.updateById(params.id, body)
@@ -76,7 +76,7 @@ export class PostController {
     @CurrentUser() user: UserModel,
   ) {
     const _post = await this.postService.model.findById(params.id)
-    if (_post?.user !== user._id && !user.admin) {
+    if (_post?.author !== user._id && !user.admin) {
       throw new ForbiddenException('没有权限修改')
     }
     return await this.postService.updateById(params.id, body)
@@ -85,6 +85,7 @@ export class PostController {
   // 怎么说呢...这里应该..换种设计
   // 列表查询的时候，如果有auth，就同时也给个isLike的字段
   // 然后不管怎么点，就是同一个接口，发现已经点过了，就unlike，没点过就like，然后返回结果到前端
+
   @Post('/like/:id')
   @Auth()
   async like(@Param('id') id: string, @CurrentUser() user: UserModel) {
