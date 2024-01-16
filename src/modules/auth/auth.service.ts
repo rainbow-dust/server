@@ -25,8 +25,9 @@ export class AuthService {
     const authCode = user.authCode
     const payload = {
       authCode,
+      _id: openid,
     }
-    return this.jwtService.sign(payload)
+    return this.jwtService.signAsync(payload)
   }
 
   async verifyPayload(payload: JwtPayload) {

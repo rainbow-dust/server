@@ -1,19 +1,13 @@
 // https://docs.nestjs.com/security/authentication
+// https://docs.nestjs.com/recipes/passport
 /* 
 
-是，原版的那个东西是不需要支持多用户的... 评论功能要关联用户了甚至用 body 参数去做... md 这不离谱吗..
-payload 的 payload { iat: 1705133263, exp: 1705738063 } 
+嗯...我对 nest 的了解不够，而一开始复制来的代码又有很大问题...
+第一次是 authCode 等信息没被放进 payload 导致一直根本找不到 user
+第二次是 @CurrentUser 在没有 auth 的情况下一直都是 null。 这个是我想让一个接口在有没有 auth 的情况下都能访问但可以有不同的表现。
+我试了很多...但经常出现我看不懂的报错...循环依赖...数据库连接未建立什么的... 我大概能想到这和 nest 的模块化和依赖注入，实例化时机有关，但目前不知道怎么解决。原本代码也有很多根本是没有执行的，删掉了。
 
-iss ：签发人
-exp ：过期时间
-sub ：主题
-aud ：受众
-nbf ：生效时间
-iat ：签发时间
-jti ：编号
-
-就是说这里的 payload 被处理过了...为什么只剩了两个... 
-加上...
+最后的方案是把 _id 也放进 payload 里，然后在 current-user.decorator 这里，在没有 user 有 token 的时候再解码一遍... 也算能用吧...
 */
 
 import { machineIdSync } from 'node-machine-id'

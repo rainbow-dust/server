@@ -1,8 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { AuthGuard as _AuthGuard } from '@nestjs/passport'
 
-import { getNestExecutionContextRequest } from '~/transformers/get-req.transformer'
-
 /**
  * JWT auth guard
  */
@@ -10,17 +8,6 @@ import { getNestExecutionContextRequest } from '~/transformers/get-req.transform
 @Injectable()
 export class AuthGuard extends _AuthGuard('jwt') implements CanActivate {
   override async canActivate(context: ExecutionContext): Promise<any> {
-    const request = this.getRequest(context)
-
-    console.log('request', request.user)
-    if (typeof request.user !== 'undefined') {
-      return true
-    }
-
-    return super.canActivate(context) as any
-  }
-
-  getRequest(context: ExecutionContext) {
-    return getNestExecutionContextRequest(context)
+    return super.canActivate(context)
   }
 }

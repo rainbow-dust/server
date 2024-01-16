@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
 
-import { Auth, AuthInfo } from '~/common/decorator/auth.decorator'
+import { Auth } from '~/common/decorator/auth.decorator'
 import { CurrentUser } from '~/common/decorator/current-user.decorator'
 import { ApiName } from '~/common/decorator/openapi.decorator'
 
@@ -72,7 +72,6 @@ export class UserController {
   }
 
   @Get('/:username')
-  @AuthInfo()
   @ApiOperation({ summary: '获取指定用户名的信息' })
   getUserInfo(@Param('username') username: string, @CurrentUser() user) {
     return this.userService.getUserInfo(username, user)
