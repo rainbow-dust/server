@@ -20,4 +20,7 @@ export class TagModel extends Document {
   @Prop()
   @IsString({ message: '标签描述' })
   description: string
+
+  @Prop({ default: 0 })
+  heat: number
 }
