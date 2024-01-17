@@ -3,7 +3,7 @@ import { Model } from 'mongoose'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 
-import { PostModel } from '../post/post.model'
+import { NoteModel } from '../note/note.model'
 import { UserModel } from '../user/user.model'
 import { CommentDto } from './comment.dto'
 import { CommentModel } from './comment.model'
@@ -13,14 +13,14 @@ export class CommentService {
   constructor(
     @InjectModel('CommentModel')
     private readonly commentModel: Model<CommentModel>,
-    @InjectModel('PostModel')
-    private readonly postModel: Model<PostModel>,
+    @InjectModel('NoteModel')
+    private readonly noteModel: Model<NoteModel>,
   ) {}
 
   async createComment(comment: CommentDto, user: UserModel) {
-    const { post_id, content, root_comment_id, mentionee_id } = comment
-    const post = await this.postModel.findById(post_id)
-    if (!post) {
+    const { note_id, content, root_comment_id, mentionee_id } = comment
+    const note = await this.noteModel.findById(note_id)
+    if (!note) {
       throw new BadRequestException('文章不存在')
     }
     if (root_comment_id) {
@@ -30,24 +30,24 @@ export class CommentService {
     }
     const newComment = await this.commentModel.create({
       author_id: user._id,
-      post_id,
+      note_id,
       content,
       root_comment_id,
       mentionee_id,
     })
-    await this.postModel.findByIdAndUpdate(post_id, {
+    await this.noteModel.findByIdAndUpdate(note_id, {
       $inc: { comment_count: 1 },
     })
     return newComment
   }
 
-  async getRootComment(post_id: string, user: UserModel) {
-    const post = await this.postModel.findById(post_id)
-    if (!post) {
+  async getRootComment(note_id: string, user: UserModel) {
+    const note = await this.noteModel.findById(note_id)
+    if (!note) {
       throw new BadRequestException('文章不存在')
     }
     const rootComments = await this.commentModel
-      .find({ post_id, root_comment_id: null })
+      .find({ note_id, root_comment_id: null })
       .populate('author_id')
       .lean()
 

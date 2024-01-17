@@ -3,7 +3,7 @@ import mongoose, { Document } from 'mongoose'
 
 import { Prop, Schema } from '@nestjs/mongoose'
 
-import { PostModel } from '../post/post.model'
+import { NoteModel } from '../note/note.model'
 import { UserModel } from '../user/user.model'
 
 @Schema({
@@ -18,11 +18,11 @@ import { UserModel } from '../user/user.model'
 export class CommentModel extends Document {
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,
-    ref: 'PostModel',
+    ref: 'NoteModel',
     message: '所属文章',
     index: true,
   })
-  post_id: PostModel
+  note_id: NoteModel
 
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,

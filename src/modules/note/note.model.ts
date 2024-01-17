@@ -8,7 +8,7 @@ import { TagModel } from '../tag/tag.model'
 import { UserModel } from '../user/user.model'
 
 @Schema({
-  collection: 'posts',
+  collection: 'notes',
   toObject: { virtuals: true, getters: true },
   timestamps: {
     createdAt: 'created_at',
@@ -16,7 +16,7 @@ import { UserModel } from '../user/user.model'
   },
   versionKey: false,
 })
-export class PostModel extends Document {
+export class NoteModel extends Document {
   @Prop()
   title: string
 
@@ -33,7 +33,12 @@ export class PostModel extends Document {
   @Prop()
   video_urls?: string[]
 
-  @Prop()
+  @Prop([
+    {
+      type: () => mongoose.Schema.Types.ObjectId,
+      ref: 'TagModel',
+    },
+  ])
   tag_ids?: TagModel[]
 
   @Prop({
@@ -66,4 +71,4 @@ export class PostModel extends Document {
   comments_count: number
 }
 
-export class PartialPostModel extends PartialType(PostModel) {}
+export class PartialNoteModel extends PartialType(NoteModel) {}

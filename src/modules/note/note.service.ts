@@ -8,37 +8,37 @@ import {
 import { InjectModel } from '@nestjs/mongoose'
 
 import { UserModel } from '../user/user.model'
-import { PostDto, PostList, QueryType } from './post.dto'
-import { PartialPostModel, PostModel } from './post.model'
+import { NoteDto, NoteList, QueryType } from './note.dto'
+import { NoteModel, PartialNoteModel } from './note.model'
 
 @Injectable()
-export class PostService {
+export class NoteService {
   constructor(
-    @InjectModel('PostModel')
-    private readonly postModel: Model<PostModel>,
+    @InjectModel('NoteModel')
+    private readonly noteModel: Model<NoteModel>,
   ) {}
-  async create(post: PostDto, user: UserModel) {
-    return this.postModel.create({ ...post, author: user._id })
+  async create(note: NoteDto, user: UserModel) {
+    return this.noteModel.create({ ...note, author: user._id })
   }
 
-  async findPostById(id: string) {
-    const _post = await this.postModel.findById(id)
+  async findNoteById(id: string) {
+    const _note = await this.noteModel.findById(id)
 
-    if (!_post) {
+    if (!_note) {
       throw new ForbiddenException('文章不存在')
     }
-    await this.postModel.updateOne({ _id: id }, { $inc: { read: 1 } })
-    const post = await this.postModel
+    await this.noteModel.updateOne({ _id: id }, { $inc: { read: 1 } })
+    const note = await this.noteModel
       .findById(id)
       // .populate('category user')
       .lean()
-    post.id = post._id
-    return post
+    note.id = note._id
+    return note
   }
 
   // FIXME 无法查询到当前页面之外的文章，需要分组查询
-  async postPaginate(post: PostList) {
-    const { pageCurrent, pageSize, tags, sort, type } = post
+  async notePaginate(note: NoteList) {
+    const { pageCurrent, pageSize, tags, sort, type } = note
 
     if (type === QueryType.user_preference) {
       // TODO
@@ -46,8 +46,8 @@ export class PostService {
 
     // ...
 
-    const postList = await this.postModel.populate(
-      await this.postModel.aggregate([
+    const noteList = await this.noteModel.populate(
+      await this.noteModel.aggregate([
         {
           $lookup: {
             from: 'users',
@@ -95,70 +95,70 @@ export class PostService {
       { path: 'category user' },
     )
 
-    const totalCount = await this.postModel.count()
+    const totalCount = await this.noteModel.count()
     const totalPages = Math.ceil(totalCount / pageSize)
     return {
-      postList,
+      noteList,
       totalCount,
       totalPages,
     }
   }
 
-  async deletePost(id: string) {
-    const _post = await this.postModel.findById(id)
-    if (!_post) {
+  async deleteNote(id: string) {
+    const _note = await this.noteModel.findById(id)
+    if (!_note) {
       throw new ForbiddenException('文章不存在')
     }
-    await this.postModel.findByIdAndDelete(id)
+    await this.noteModel.findByIdAndDelete(id)
     return
   }
 
-  async updateById(id: string, post: PartialPostModel) {
-    const oldPost = await this.postModel.findById(id, 'category')
-    if (!oldPost) {
+  async updateById(id: string, note: PartialNoteModel) {
+    const oldNote = await this.noteModel.findById(id, 'category')
+    if (!oldNote) {
       throw new BadRequestException('文章不存在')
     }
-    await this.postModel.updateOne({ _id: id }, post)
+    await this.noteModel.updateOne({ _id: id }, note)
     return
   }
 
   async like(id: string, user: UserModel) {
-    const _post = await this.postModel.findById(id)
-    if (!_post) {
+    const _note = await this.noteModel.findById(id)
+    if (!_note) {
       throw new BadRequestException('文章不存在')
     }
-    const hasLiked = await this.postModel.findOne({
+    const hasLiked = await this.noteModel.findOne({
       _id: id,
       likes: user._id,
     })
     if (hasLiked) {
       throw new BadRequestException('已点赞')
     }
-    return await this.postModel.updateOne(
+    return await this.noteModel.updateOne(
       { _id: id },
       { $push: { likes: user._id } },
     )
   }
 
   async unlike(id: string, user: UserModel) {
-    const _post = await this.postModel.findById(id)
-    if (!_post) {
+    const _note = await this.noteModel.findById(id)
+    if (!_note) {
       throw new BadRequestException('文章不存在')
     }
-    const hasLiked = await this.postModel.findOne({
+    const hasLiked = await this.noteModel.findOne({
       _id: id,
       likes: user._id,
     })
     if (!hasLiked) {
       throw new BadRequestException('未点赞')
     }
-    return await this.postModel.updateOne(
+    return await this.noteModel.updateOne(
       { _id: id },
       { $pull: { likes: user._id } },
     )
   }
 
   get model() {
-    return this.postModel
+    return this.noteModel
   }
 }

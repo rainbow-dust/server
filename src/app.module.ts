@@ -9,8 +9,8 @@ import { AllExceptionsFilter } from './common/filters/any-exception.filter'
 import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 import { CollectModule } from './modules/collect/collect.module'
 import { CommentModule } from './modules/comment/comment.module'
+import { NoteModule } from './modules/note/note.module'
 import { NoticeModule } from './modules/notice/notice.module'
-import { PostModule } from './modules/post/post.module'
 import { TagModule } from './modules/tag/tag.module'
 import { UploadModule } from './modules/upload/upload.module'
 import { UserModule } from './modules/user/user.module'
@@ -22,7 +22,7 @@ import { HelperModule } from './processors/helper/helper.module'
     DatabaseModule,
     HelperModule,
     UserModule,
-    PostModule,
+    NoteModule,
     TagModule,
     CommentModule,
     CollectModule,

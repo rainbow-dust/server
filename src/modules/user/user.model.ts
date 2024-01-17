@@ -4,7 +4,7 @@ import mongoose, { Document } from 'mongoose'
 import { Prop, Schema } from '@nestjs/mongoose'
 
 import { CollectModel } from '../collect/collect.model'
-import { PostModel } from '../post/post.model'
+import { NoteModel } from '../note/note.model'
 import { TagModel } from '../tag/tag.model'
 
 @Schema({
@@ -59,10 +59,10 @@ export class UserModel extends Document {
 
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,
-    ref: 'PostModel',
+    ref: 'NoteModel',
   })
   @IsArray()
-  likes: PostModel[]
+  likes: NoteModel[]
 
   @IsArray()
   collects: CollectModel[]

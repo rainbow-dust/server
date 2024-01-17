@@ -3,7 +3,7 @@ import mongoose, { Document } from 'mongoose'
 
 import { Prop, Schema } from '@nestjs/mongoose'
 
-import { PostModel } from '../post/post.model'
+import { NoteModel } from '../note/note.model'
 import { UserModel } from '../user/user.model'
 
 @Schema({
@@ -34,7 +34,7 @@ export class CollectModel extends Document {
   })
   creator: UserModel
 
-  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'PostModel' }])
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'NoteModel' }])
   @IsArray()
-  post: PostModel[]
+  note: NoteModel[]
 }

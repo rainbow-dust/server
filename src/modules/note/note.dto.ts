@@ -6,7 +6,7 @@ import {
   IsUrl,
 } from 'class-validator'
 
-import { paginateDto } from '../..//shared/dto/pager.dto'
+import { paginateDto } from '../../shared/dto/pager.dto'
 
 export enum Sort {
   Newest = 'newest',
@@ -19,11 +19,11 @@ export enum Sort {
 export enum QueryType {
   user_preference = 'user_preference',
   tag_exact = 'tag_exact',
-  user_post_exact = 'user_post_exact',
+  user_note_exact = 'user_note_exact',
   ids_exact = 'ids_exact',
 }
 
-export class PostDto {
+export class NoteDto {
   @IsString({ message: '标题' })
   title: string
 
@@ -42,7 +42,7 @@ export class PostDto {
   pic_urls?: string[]
 }
 
-export class PostList extends paginateDto {
+export class NoteList extends paginateDto {
   @ArrayUnique()
   @IsOptional()
   tags?: string[]

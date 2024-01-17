@@ -5,7 +5,7 @@ export class CommentDto {
   content: string
 
   @IsString({ message: '文章id' })
-  post_id: string
+  note_id: string
 
   @IsString({ message: '一级评论id' })
   @IsOptional()

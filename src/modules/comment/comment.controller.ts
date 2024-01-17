@@ -20,13 +20,13 @@ export class CommentController {
     return this.commentService.createComment(comment, user)
   }
 
-  @Get('/post/:post_id/root_comment')
+  @Get('/note/:note_id/root_comment')
   @ApiOperation({ summary: '获取一级评论' })
   async getFirst(
-    @Param('post_id') post_id: string,
+    @Param('note_id') note_id: string,
     @CurrentUser() user: UserModel,
   ) {
-    return this.commentService.getRootComment(post_id, user)
+    return this.commentService.getRootComment(note_id, user)
   }
 
   @Get('/root_comment/:root_comment_id/child_comment')
