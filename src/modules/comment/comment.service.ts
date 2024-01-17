@@ -47,24 +47,26 @@ export class CommentService {
     if (!co) {
       throw new Error('评论不存在')
     }
+
     // 找到文章下的这个一级评论并更新一级评论数...
-    // 难搞...好像真不如按范式来...或者完全不搞直接嵌套...
     await this.postModel.findOneAndUpdate(
-      { _id: co.post_id },
       {
-        $inc: { 'comments.$[comment].nested_comments_count': 1 },
+        _id: co.post_id,
+        'comments.comment_id': co._id,
       },
       {
-        arrayFilters: [{ 'comment.comment_id': comment.comment_id }],
+        $set: {
+          'comments.$.child_comment_count': co.child_comments.length + 1,
+        },
       },
     )
 
     // 创建二级评论
-    const nested_comment = await this.commentModel.findOneAndUpdate(
+    const child_comment = await this.commentModel.findOneAndUpdate(
       { _id: comment.comment_id },
       {
         $push: {
-          nested_comments: {
+          child_comments: {
             mentionee_author: comment.mentionee_author,
             mentionee: comment.mentionee,
             creator: user._id,
@@ -77,9 +79,15 @@ export class CommentService {
 
     return {
       comment: co,
-      nested_comment,
+      child_comment,
     }
   }
 
-  async getSecond(id: string) {}
+  async getSecond(id: string) {
+    const co = await this.commentModel.findById(id)
+    if (!co) {
+      throw new Error('评论不存在')
+    }
+    return co.child_comments
+  }
 }

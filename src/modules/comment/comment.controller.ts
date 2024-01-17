@@ -24,7 +24,7 @@ export class CommentController {
     }
   }
 
-  @Get(':id')
+  @Get('/:id/children')
   @ApiOperation({ summary: '获取二级评论' })
   async getSecond(@Param('id') id: string) {
     return this.commentService.getSecond(id)

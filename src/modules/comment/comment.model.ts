@@ -31,14 +31,14 @@ export class CommentModel extends Document {
 
   @Prop()
   @IsArray()
-  nested_comments: NestedComment[]
+  child_comments: ChildComment[]
 
   @Prop({ default: 0 })
-  nested_comments_count: number
+  child_comment_count: number
 }
 
 @Schema({
-  collection: 'nested_comments',
+  collection: 'child_comments',
   toObject: { virtuals: true, getters: true },
   timestamps: {
     createdAt: 'created',
@@ -46,7 +46,7 @@ export class CommentModel extends Document {
   },
   versionKey: false,
 })
-export class NestedComment extends Document {
+export class ChildComment extends Document {
   mentionee_author: UserModel
   mentionee: CommentModel
   author: UserModel
