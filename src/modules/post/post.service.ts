@@ -33,37 +33,6 @@ export class PostService {
       // .populate('category user')
       .lean()
     post.id = post._id
-    const relatedPost = await this.postModel.aggregate([
-      {
-        // 联表查询，comments 里有一堆 id，需要转换成具体的评论
-        $lookup: {
-          from: 'comments',
-          localField: 'comments',
-          foreignField: 'comment_id',
-          as: 'comments',
-        },
-      },
-      {
-        $project: {
-          title: 1,
-          read: 1,
-        },
-      },
-      {
-        $match: {
-          _id: { $ne: post._id },
-        },
-      },
-      {
-        $sort: {
-          read: -1,
-        },
-      },
-      {
-        $limit: 10,
-      },
-    ])
-    post['related'] = relatedPost
     return post
   }
 

@@ -9,13 +9,9 @@ export class CommentDto {
 
   @IsString({ message: '一级评论id' })
   @IsOptional()
-  comment_id?: string
+  root_comment_id?: string | null | undefined
 
   @IsOptional()
   @IsString({ message: '被回复人id' })
-  mentionee_author?: string
-
-  @IsOptional()
-  @IsString({ message: '被回复内容id' })
-  mentionee?: string
+  mentionee_id?: string | null | undefined
 }

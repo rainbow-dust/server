@@ -4,7 +4,6 @@ import mongoose, { Document } from 'mongoose'
 import { Prop, Schema } from '@nestjs/mongoose'
 import { PartialType } from '@nestjs/swagger'
 
-import { CommentModel } from '../comment/comment.model'
 import { TagModel } from '../tag/tag.model'
 import { UserModel } from '../user/user.model'
 
@@ -32,10 +31,10 @@ export class PostModel extends Document {
   pic_urls: string[]
 
   @Prop()
-  video?: string
+  video_urls?: string[]
 
   @Prop()
-  tags?: TagModel[]
+  tag_ids?: TagModel[]
 
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,
@@ -45,22 +44,20 @@ export class PostModel extends Document {
     ref: 'UserModel',
     index: true,
   })
-  author: UserModel
-
-  @Prop([{ type: () => mongoose.Schema.Types.ObjectId, ref: 'CommentModel' }])
-  @IsArray()
-  comments: CommentModel[]
+  author_id: UserModel
 
   @Prop([
     {
       type: () => mongoose.Schema.Types.ObjectId,
+      ref: 'UserModel',
+      message: '点赞用户',
     },
   ])
   @IsArray()
-  likes: UserModel[]
+  like_user_ids: UserModel[]
 
   @Prop({ default: 0 })
-  read: number
+  read_count: number
 
   @Prop({ default: 0 })
   likes_count: number

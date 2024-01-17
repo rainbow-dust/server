@@ -48,7 +48,7 @@ export class PostController {
   @Auth()
   async deletePost(@Param('id') id: string, @CurrentUser() user: UserModel) {
     const _post = await this.postService.model.findById(id)
-    if (_post?.author !== user._id && !user.admin) {
+    if (_post?.author_id !== user._id && !user.admin) {
       throw new ForbiddenException('没有权限删除')
     }
     return await this.postService.deletePost(id)
@@ -62,7 +62,7 @@ export class PostController {
     @CurrentUser() user: UserModel,
   ) {
     const _post = await this.postService.model.findById(params.id)
-    if (_post?.author !== user._id && !user.admin) {
+    if (_post?.author_id !== user._id && !user.admin) {
       throw new ForbiddenException('没有权限修改')
     }
     return await this.postService.updateById(params.id, body)
@@ -76,7 +76,7 @@ export class PostController {
     @CurrentUser() user: UserModel,
   ) {
     const _post = await this.postService.model.findById(params.id)
-    if (_post?.author !== user._id && !user.admin) {
+    if (_post?.author_id !== user._id && !user.admin) {
       throw new ForbiddenException('没有权限修改')
     }
     return await this.postService.updateById(params.id, body)

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
 
 import { Auth } from '~/common/decorator/auth.decorator'
@@ -17,16 +17,42 @@ export class CommentController {
   @Post('/add')
   @Auth()
   async create(@Body() comment: CommentDto, @CurrentUser() user: UserModel) {
-    if (comment.mentionee) {
-      return this.commentService.createSecond(comment, user)
-    } else {
-      return this.commentService.createFirst(comment, user)
-    }
+    return this.commentService.createComment(comment, user)
   }
 
-  @Get('/:id/children')
+  @Get('/post/:post_id/root_comment')
+  @ApiOperation({ summary: '获取一级评论' })
+  async getFirst(
+    @Param('post_id') post_id: string,
+    @CurrentUser() user: UserModel,
+  ) {
+    return this.commentService.getRootComment(post_id, user)
+  }
+
+  @Get('/root_comment/:root_comment_id/child_comment')
   @ApiOperation({ summary: '获取二级评论' })
-  async getSecond(@Param('id') id: string) {
-    return this.commentService.getSecond(id)
+  async getSecond(
+    @Param('root_comment_id') root_comment_id: string,
+    @CurrentUser() user: UserModel,
+  ) {
+    return this.commentService.getChildComment(root_comment_id, user)
+  }
+
+  @Post('/:comment_id/like')
+  @Auth()
+  async like(
+    @Param('comment_id') comment_id: string,
+    @CurrentUser() user: UserModel,
+  ) {
+    return this.commentService.like(comment_id, user)
+  }
+
+  @Delete('/:comment_id/like')
+  @Auth()
+  async cancelLike(
+    @Param('comment_id') comment_id: string,
+    @CurrentUser() user: UserModel,
+  ) {
+    return this.commentService.cancelLike(comment_id, user)
   }
 }

@@ -1,6 +1,6 @@
 import { Model } from 'mongoose'
 
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 
 import { PostModel } from '../post/post.model'
@@ -17,77 +17,97 @@ export class CommentService {
     private readonly postModel: Model<PostModel>,
   ) {}
 
-  async createFirst(comment: CommentDto, user: UserModel) {
-    const post = await this.postModel.findById(comment.post_id)
+  async createComment(comment: CommentDto, user: UserModel) {
+    const { post_id, content, root_comment_id, mentionee_id } = comment
+    const post = await this.postModel.findById(post_id)
     if (!post) {
-      throw new Error('文章不存在')
+      throw new BadRequestException('文章不存在')
     }
-    const co = await this.commentModel.create({
-      ...comment,
-      author: user._id,
+    if (root_comment_id) {
+      await this.commentModel.findByIdAndUpdate(root_comment_id, {
+        $inc: { child_comment_count: 1 },
+      })
+    }
+    const newComment = await this.commentModel.create({
+      author_id: user._id,
+      post_id,
+      content,
+      root_comment_id,
+      mentionee_id,
     })
-
-    return this.postModel.findByIdAndUpdate(
-      comment.post_id,
-      {
-        $push: {
-          comments: {
-            comment_id: co._id,
-            content: comment.content, // 一级的内容还是存两份...
-            author: user._id,
-          },
-        },
-      },
-      { new: true },
-    )
-  }
-  async createSecond(comment: CommentDto, user: UserModel) {
-    // 找到一级评论
-    const co = await this.commentModel.findById(comment.comment_id)
-    if (!co) {
-      throw new Error('评论不存在')
-    }
-
-    // 找到文章下的这个一级评论并更新一级评论数...
-    await this.postModel.findOneAndUpdate(
-      {
-        _id: co.post_id,
-        'comments.comment_id': co._id,
-      },
-      {
-        $set: {
-          'comments.$.child_comment_count': co.child_comments.length + 1,
-        },
-      },
-    )
-
-    // 创建二级评论
-    const child_comment = await this.commentModel.findOneAndUpdate(
-      { _id: comment.comment_id },
-      {
-        $push: {
-          child_comments: {
-            mentionee_author: comment.mentionee_author,
-            mentionee: comment.mentionee,
-            creator: user._id,
-            content: comment.content,
-          },
-        },
-      },
-      { new: true },
-    )
-
-    return {
-      comment: co,
-      child_comment,
-    }
+    await this.postModel.findByIdAndUpdate(post_id, {
+      $inc: { comment_count: 1 },
+    })
+    return newComment
   }
 
-  async getSecond(id: string) {
-    const co = await this.commentModel.findById(id)
-    if (!co) {
-      throw new Error('评论不存在')
+  async getRootComment(post_id: string, user: UserModel) {
+    const post = await this.postModel.findById(post_id)
+    if (!post) {
+      throw new BadRequestException('文章不存在')
     }
-    return co.child_comments
+    const rootComments = await this.commentModel
+      .find({ post_id, root_comment_id: null })
+      .populate('author_id')
+      .lean()
+
+    if (user?._id) {
+      rootComments.forEach((comment) => {
+        comment['is_liked'] = comment.like_user_ids
+          .map((i) => i.toString())
+          .includes(user._id)
+      })
+    }
+    return rootComments
+  }
+
+  async getChildComment(root_comment_id: string, user: UserModel) {
+    const rootComment = await this.commentModel.findById(root_comment_id)
+    if (!rootComment) {
+      throw new BadRequestException('评论不存在')
+    }
+    const childComment = await this.commentModel
+      .find({ root_comment_id })
+      .populate('author_id')
+      .lean()
+
+    if (user?._id) {
+      childComment.forEach((comment) => {
+        comment['is_liked'] = comment.like_user_ids
+          .map((i) => i.toString())
+          .includes(user._id)
+      })
+    }
+    return childComment
+  }
+
+  async like(comment_id: string, user: UserModel) {
+    const comment = await this.commentModel.findById(comment_id)
+    if (!comment) {
+      throw new BadRequestException('评论不存在')
+    }
+    if (comment.like_user_ids.includes(user._id)) {
+      throw new BadRequestException('已经点赞过了')
+    }
+    await this.commentModel.findByIdAndUpdate(comment_id, {
+      $inc: { like_count: 1 },
+      $push: { like_user_ids: user._id },
+    })
+    return { success: true }
+  }
+
+  async cancelLike(comment_id: string, user: UserModel) {
+    const comment = await this.commentModel.findById(comment_id)
+    if (!comment) {
+      throw new BadRequestException('评论不存在')
+    }
+    if (!comment.like_user_ids.includes(user._id)) {
+      throw new BadRequestException('未点赞过')
+    }
+    await this.commentModel.findByIdAndUpdate(comment_id, {
+      $inc: { like_count: -1 },
+      $pull: { like_user_ids: user._id },
+    })
+    return { success: true }
   }
 }
