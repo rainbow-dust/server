@@ -29,7 +29,7 @@ export class UserModel extends Document {
   authCode: string
 
   @Prop()
-  avatar: string
+  avatar_url: string
 
   @Prop()
   bio: string

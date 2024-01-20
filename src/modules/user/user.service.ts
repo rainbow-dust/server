@@ -54,10 +54,14 @@ export class UserService {
     return user
   }
 
-  async patchUserData(data: UserDetailDto, CurrentUser: UserModel) {
-    const _user = await this.userModel.findById(CurrentUser._id)
-    if (!_user?.admin && data._id != _user._id) {
-      throw new ForbiddenException('无修改权限')
+  async patchUserData(data: UserDetailDto, currentUser: UserModel) {
+    const _user = await this.userModel.findById(currentUser._id)
+    // if (!_user?.admin && data._id != _user._id) {
+    //   throw new ForbiddenException('无修改权限')
+    // }
+    // 我是觉得...直接修改 currentUser 的就好，直接使用这里的id去改也可以防止修改别人信息。data 里再传一个 _id ...好像并不能有更多的安全性
+    if (!_user) {
+      throw new ForbiddenException('用户不存在')
     }
     if (data?.password) {
       data.password = hashSync(data.password, 7)
@@ -73,8 +77,8 @@ export class UserService {
       throw new ForbiddenException('用户不存在')
     }
     console.log(currentUser)
-    if (currentUser) {
-      _user['is_followed'] = !!_user.followers.find(
+    if (currentUser?._id) {
+      _user['is_followed'] = !!_user?.followers?.find(
         (follower) => follower === currentUser._id,
       )
     }
@@ -109,7 +113,7 @@ export class UserService {
     return Promise.all([op1, op2])
   }
 
-  async unfollow(mentionee: string, user: UserModel) {
+  async cancelFollow(mentionee: string, user: UserModel) {
     const _mentionee = await this.userModel.findOne({ username: mentionee })
     if (!_mentionee) {
       throw new ForbiddenException('被关注者不存在')

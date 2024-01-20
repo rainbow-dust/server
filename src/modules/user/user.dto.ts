@@ -15,11 +15,11 @@ export class UserDto {
 
   @IsString({ message: '介绍' })
   @IsOptional()
-  introduce: string
+  bio: string
 
   @IsString({ message: '头像' })
   @IsOptional()
-  avatar: string
+  avatar_url: string
 }
 
 export class UserDetailDto extends UserDto {

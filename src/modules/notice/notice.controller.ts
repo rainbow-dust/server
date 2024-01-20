@@ -10,6 +10,7 @@ import { NoticeService } from './notice.service'
 @ApiName
 export class NoticeController {
   constructor(private readonly noticeService: NoticeService) {}
+  // 这里除了给用户提示... 还可以作为一个日志，统计之类的地方
 
   @Post()
   @Auth()

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
@@ -83,23 +84,13 @@ export class UserController {
     return this.userService.follow(mentionee, user)
   }
 
-  @Post('unfollow/:mentionee')
+  @Delete('follow/:mentionee')
   @ApiOperation({ summary: '取消关注' })
   @Auth()
-  async unfollow(@Param('mentionee') mentionee: string, @CurrentUser() user) {
-    return this.userService.unfollow(mentionee, user)
+  async cancelFollow(
+    @Param('mentionee') mentionee: string,
+    @CurrentUser() user,
+  ) {
+    return this.userService.cancelFollow(mentionee, user)
   }
-
-  // 如果你是把数据直接塞进了 user 里的话...是不是直接就能拿到...
-  // @Get('following/:username')
-  // @ApiOperation({ summary: '获取指定用户的关注列表' })
-  // async getFollowing(@Param('username') username: string) {
-  //   return this.userService.getFollowing(username)
-  // }
-
-  // @Get('follower/:username')
-  // @ApiOperation({ summary: '获取指定用户的被关注列表' })
-  // async getFollower(@Param('username') username: string) {
-  //   return this.userService.getFollower(username)
-  // }
 }

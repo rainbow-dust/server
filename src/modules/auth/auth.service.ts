@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { InjectModel } from '@nestjs/mongoose'
 
-import { MasterLostException } from '~/common/exceptions/master-lost.exception'
+import { AuthFailedException } from '~/common/exceptions/auth-failed.exception'
 
 import { UserModel } from '../user/user.model'
 import { JwtPayload } from './interfaces/jwt-payload.interface'
@@ -20,7 +20,7 @@ export class AuthService {
   async signToken(openid: string) {
     const user = await this.userModel.findById(openid, { authCode: 1 })
     if (!user) {
-      throw new MasterLostException()
+      throw new AuthFailedException()
     }
     const authCode = user.authCode
     const payload = {
@@ -38,7 +38,7 @@ export class AuthService {
       { authCode: 1 },
     )
     if (!user) {
-      throw new MasterLostException()
+      throw new AuthFailedException()
     }
     return user && user.authCode === payload.authCode ? user : null
   }
