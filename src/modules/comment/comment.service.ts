@@ -29,7 +29,7 @@ export class CommentService {
       })
     }
     const newComment = await this.commentModel.create({
-      author_id: user._id,
+      author: user._id,
       note_id,
       content,
       root_comment_id,
@@ -48,7 +48,7 @@ export class CommentService {
     }
     const rootComments = await this.commentModel
       .find({ note_id, root_comment_id: null })
-      .populate('author_id')
+      .populate('author')
       .lean()
 
     if (user?._id) {
@@ -68,7 +68,7 @@ export class CommentService {
     }
     const childComment = await this.commentModel
       .find({ root_comment_id })
-      .populate('author_id')
+      .populate('author')
       .lean()
 
     if (user?._id) {

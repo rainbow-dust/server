@@ -28,7 +28,7 @@ export class CommentModel extends Document {
     type: () => mongoose.Schema.Types.ObjectId,
     ref: 'UserModel',
   })
-  author_id: UserModel
+  author: UserModel
 
   @Prop()
   @IsString({ message: '评论内容' })
