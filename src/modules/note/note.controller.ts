@@ -40,8 +40,11 @@ export class NoteController {
 
   @Post('/query/list')
   @ApiOperation({ summary: '分页获取博文' })
-  async getPaginate(@Body() noteList: NoteList) {
-    return this.noteService.notePaginate(noteList)
+  async getPaginate(
+    @Body() noteList: NoteList,
+    @CurrentUser() user: UserModel,
+  ) {
+    return this.noteService.notePaginate(noteList, user)
   }
 
   @Delete(':id')
@@ -81,10 +84,6 @@ export class NoteController {
     }
     return await this.noteService.updateById(params.id, body)
   }
-
-  // 怎么说呢...这里应该..换种设计
-  // 列表查询的时候，如果有auth，就同时也给个isLike的字段
-  // 然后不管怎么点，就是同一个接口，发现已经点过了，就unlike，没点过就like，然后返回结果到前端
 
   @Post('/:id/like')
   @Auth()

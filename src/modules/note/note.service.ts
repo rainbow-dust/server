@@ -18,27 +18,21 @@ export class NoteService {
     private readonly noteModel: Model<NoteModel>,
   ) {}
   async create(note: NoteDto, user: UserModel) {
-    console.log(note, '怎么回事啊...', user._id)
     return this.noteModel.create({ ...note, author: user._id })
   }
 
   async findNoteById(id: string) {
     const _note = await this.noteModel.findById(id)
-
     if (!_note) {
       throw new ForbiddenException('文章不存在')
     }
     await this.noteModel.updateOne({ _id: id }, { $inc: { read: 1 } })
-    const note = await this.noteModel
-      .findById(id)
-      // .populate('category user')
-      .lean()
-    note.id = note._id
+    const note = await this.noteModel.findById(id).populate('author').lean()
     return note
   }
 
   // FIXME 无法查询到当前页面之外的文章，需要分组查询
-  async notePaginate(note: NoteList) {
+  async notePaginate(note: NoteList, user) {
     const { pageCurrent, pageSize, tags, sort, type, username } = note
 
     if (type === QueryType.user_preference) {
@@ -79,6 +73,10 @@ export class NoteService {
           pic_urls: 1,
           read: 1,
           updatedAt: 1,
+          like_user_ids: 1,
+          likes_count: {
+            $size: '$like_user_ids',
+          },
           author: {
             $arrayElemAt: ['$author', 0],
           },
@@ -103,6 +101,15 @@ export class NoteService {
       },
     ])
 
+    if (user?._id) {
+      noteList?.forEach((note) => {
+        note['is_liked'] = note.like_user_ids
+          ?.map((i) => i.toString())
+          .includes(user._id)
+      })
+    }
+
+    // 这里之后...要不压根不算 total...
     const totalCount = await this.noteModel.count()
     const totalPages = Math.ceil(totalCount / pageSize)
     return {
@@ -137,14 +144,15 @@ export class NoteService {
     }
     const hasLiked = await this.noteModel.findOne({
       _id: id,
-      likes: user._id,
+      like_user_ids: user._id,
     })
     if (hasLiked) {
       throw new BadRequestException('已点赞')
     }
     return await this.noteModel.updateOne(
       { _id: id },
-      { $push: { likes: user._id } },
+      { $push: { like_user_ids: user._id } },
+      { $inc: { likes_count: 1 } },
     )
   }
 
@@ -155,14 +163,15 @@ export class NoteService {
     }
     const hasLiked = await this.noteModel.findOne({
       _id: id,
-      likes: user._id,
+      like_user_ids: user._id,
     })
     if (!hasLiked) {
       throw new BadRequestException('未点赞')
     }
     return await this.noteModel.updateOne(
       { _id: id },
-      { $pull: { likes: user._id } },
+      { $pull: { like_user_ids: user._id } },
+      { $inc: { likes_count: -1 } },
     )
   }
 

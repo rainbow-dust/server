@@ -43,11 +43,7 @@ export class NoteModel extends Document {
 
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,
-  })
-  @Prop({
-    type: () => mongoose.Schema.Types.ObjectId,
     ref: 'UserModel',
-    index: true,
   })
   author: UserModel
 
