@@ -60,7 +60,7 @@ export class NoteList extends paginateDto {
   ids?: string[]
 
   @IsOptional()
-  user_id: string
+  username: string
 }
 
 export class PaginateDto {

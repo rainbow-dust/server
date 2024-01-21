@@ -49,7 +49,7 @@ export class NoteModel extends Document {
     ref: 'UserModel',
     index: true,
   })
-  author_id: UserModel
+  author: UserModel
 
   @Prop([
     {

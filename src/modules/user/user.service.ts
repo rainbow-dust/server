@@ -6,7 +6,6 @@ import { ForbiddenException, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 
 import { UserModel } from '~/modules/user/user.model'
-import { sleep } from '~/utils/tool.util'
 
 import { UserDetailDto, UserDto } from './user.dto'
 
@@ -44,12 +43,10 @@ export class UserService {
       .findOne({ username })
       .select(['+password', '+authCode'])
     if (!user) {
-      await sleep(1000)
-      throw new ForbiddenException('用户名不正确')
+      throw new ForbiddenException('用户名不存在')
     }
     if (!compareSync(password, user.password)) {
-      await sleep(1000)
-      throw new ForbiddenException('密码不正确')
+      throw new ForbiddenException('用户名或密码错误')
     }
     return user
   }
@@ -74,7 +71,7 @@ export class UserService {
   async getUserInfo(username: string, currentUser?: UserModel) {
     const _user = await this.userModel.findOne({ username })
     if (!_user) {
-      throw new ForbiddenException('用户不存在')
+      throw new ForbiddenException('用户还不存在哦')
     }
     console.log(currentUser)
     if (currentUser?._id) {

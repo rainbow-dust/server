@@ -34,7 +34,7 @@ export class UserModel extends Document {
   @Prop()
   bio: string
 
-  @Prop()
+  @Prop({ select: false })
   admin: boolean
 
   @Prop({
@@ -76,6 +76,7 @@ export class UserModel extends Document {
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,
     ref: 'TagModel',
+    select: false,
   })
   @IsArray()
   preferences: TagModel[]
