@@ -12,6 +12,7 @@ export const CurrentUser = createParamDecorator(
       const token = _authToken.split(' ')[1]
       const jwtService = new JwtService({})
       const _payload = jwtService.decode(token)
+      if (!_payload) return
       _context.user = {
         _id: _payload._id,
         authCode: _payload.authCode,
