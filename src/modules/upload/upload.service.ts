@@ -23,7 +23,7 @@ export class UploadService {
     try {
       await fs.promises.writeFile(filepath, file.buffer)
       return {
-        url: url.resolve('http://localhost:9527', `/uploads/${filename}`),
+        url: url.resolve('', `/uploads/${filename}`),
       }
     } catch (error) {
       throw new InternalServerErrorException('上传失败')

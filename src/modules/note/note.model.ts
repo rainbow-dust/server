@@ -28,7 +28,7 @@ export class NoteModel extends Document {
 
   @Prop()
   @IsArray()
-  pic_urls: string[]
+  pic_list: Pic[]
 
   @Prop()
   video_urls?: string[]
@@ -61,10 +61,16 @@ export class NoteModel extends Document {
   read_count: number
 
   @Prop({ default: 0 })
-  likes_count: number
+  like_count: number
 
   @Prop({ default: 0 })
-  comments_count: number
+  comment_count: number
+}
+
+export interface Pic {
+  url: string
+  width: number
+  height: number
 }
 
 export class PartialNoteModel extends PartialType(NoteModel) {}

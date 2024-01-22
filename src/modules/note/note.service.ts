@@ -85,7 +85,7 @@ export class NoteService {
     //       read: 1,
     //       updatedAt: 1,
     //       like_user_ids: 1,
-    //       likes_count: {
+    //       like_count: {
     //         $size: '$like_user_ids',
     //       },
     //       author: {
@@ -172,7 +172,7 @@ export class NoteService {
     return await this.noteModel.updateOne(
       { _id: id },
       { $push: { like_user_ids: user._id } },
-      { $inc: { likes_count: 1 } },
+      { $inc: { like_count: 1 } },
     )
   }
 
@@ -191,7 +191,7 @@ export class NoteService {
     return await this.noteModel.updateOne(
       { _id: id },
       { $pull: { like_user_ids: user._id } },
-      { $inc: { likes_count: -1 } },
+      { $inc: { like_count: -1 } },
     )
   }
 

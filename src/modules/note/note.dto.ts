@@ -7,6 +7,7 @@ import {
 } from 'class-validator'
 
 import { paginateDto } from '../../shared/dto/pager.dto'
+import { Pic } from './note.model'
 
 export enum Sort {
   Newest = 'newest',
@@ -39,7 +40,7 @@ export class NoteDto {
 
   @IsOptional()
   @ArrayUnique()
-  pic_urls?: string[]
+  pic_list?: Pic[]
 }
 
 export class NoteList extends paginateDto {
