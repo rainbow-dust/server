@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 
+import { TagModel } from '../tag/tag.model'
 import { UserModel } from '../user/user.model'
 import { NoteDto, NoteList, QueryType } from './note.dto'
 import { NoteModel, PartialNoteModel } from './note.model'
@@ -16,9 +17,20 @@ export class NoteService {
   constructor(
     @InjectModel('NoteModel')
     private readonly noteModel: Model<NoteModel>,
+    @InjectModel('TagModel')
+    private readonly tagModel: Model<TagModel>,
   ) {}
   async create(note: NoteDto, user: UserModel) {
-    return this.noteModel.create({ ...note, author: user._id })
+    const tags = await Promise.all(
+      note.tags?.map((i) => {
+        return this.tagModel.findById(i)
+      }),
+    )
+    return this.noteModel.create({
+      ...note,
+      author: user._id,
+      tags: tags?.map((i) => i._id),
+    })
   }
 
   async findNoteById(id: string) {
@@ -41,65 +53,73 @@ export class NoteService {
 
     // ...
 
-    const noteList = await this.noteModel.aggregate([
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'author',
-          foreignField: '_id',
-          as: 'author',
-          // 不要把所有的用户信息都返回...
-          pipeline: [
-            {
-              $project: {
-                password: 0,
-                authCode: 0,
-                admin: 0,
-              },
-            },
-          ],
-        },
-      },
-      {
-        $project: {
-          content: {
-            $substrCP: ['$content', 1, 100],
-          },
-          _id: 1,
-          title: 1,
-          tags: 1,
-          created: 1,
-          cover: 1,
-          pic_urls: 1,
-          read: 1,
-          updatedAt: 1,
-          like_user_ids: 1,
-          likes_count: {
-            $size: '$like_user_ids',
-          },
-          author: {
-            $arrayElemAt: ['$author', 0],
-          },
-        },
-      },
-      {
-        $match: {
-          'author.username': username || { $exists: true }, // 这里想要的是... 如果username存在，就匹配username，如果不存在，就匹配所有...但是有些没有author的文章，就会被排除掉...虽然是因为错误数据...
-        },
-      },
-      // {
-      //   $sort: {
-      //     read: sort != Sort.Newest ? -1 : 1,
-      //     created: -1,
-      //   },
-      // },
-      {
-        $skip: pageSize * (pageCurrent - 1),
-      },
-      {
-        $limit: pageSize,
-      },
-    ])
+    // const noteList1 = await this.noteModel.aggregate([
+    //   {
+    //     $lookup: {
+    //       from: 'users',
+    //       localField: 'author',
+    //       foreignField: '_id',
+    //       as: 'author',
+    //       // 不要把所有的用户信息都返回...
+    //       pipeline: [
+    //         {
+    //           $project: {
+    //             password: 0,
+    //             authCode: 0,
+    //             admin: 0,
+    //           },
+    //         },
+    //       ],
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       content: {
+    //         $substrCP: ['$content', 1, 100],
+    //       },
+    //       _id: 1,
+    //       title: 1,
+    //       created: 1,
+    //       cover: 1,
+    //       pic_urls: 1,
+    //       read: 1,
+    //       updatedAt: 1,
+    //       like_user_ids: 1,
+    //       likes_count: {
+    //         $size: '$like_user_ids',
+    //       },
+    //       author: {
+    //         $arrayElemAt: ['$author', 0],
+    //       },
+    //     },
+    //   },
+    //   {
+    //     $match: {
+    //       'author.username': username || { $exists: true }, // 这里想要的是... 如果username存在，就匹配username，如果不存在，就匹配所有...但是有些没有author的文章，就会被排除掉...虽然是因为错误数据...
+    //     },
+    //   },
+    //   // {
+    //   //   $sort: {
+    //   //     read: sort != Sort.Newest ? -1 : 1,
+    //   //     created: -1,
+    //   //   },
+    //   // },
+    //   {
+    //     $skip: pageSize * (pageCurrent - 1),
+    //   },
+    //   {
+    //     $limit: pageSize,
+    //   },
+    // ])
+
+    // const noteList = await this.noteModel.populate(noteList1, 'author')
+
+    // 分页之后再做...
+    const noteList = await this.noteModel
+      .find()
+      .populate('author')
+      .populate('tags')
+      .lean()
 
     if (user?._id) {
       noteList?.forEach((note) => {

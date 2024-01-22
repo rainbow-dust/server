@@ -33,13 +33,13 @@ export class NoteModel extends Document {
   @Prop()
   video_urls?: string[]
 
-  @Prop([
-    {
-      type: () => mongoose.Schema.Types.ObjectId,
-      ref: 'TagModel',
-    },
-  ])
-  tag_ids?: TagModel[]
+  // https://github.com/nestjs/nest/issues/5716#issuecomment-730205272
+  @Prop({
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: 'TagModel',
+  })
+  @IsArray()
+  tags: TagModel[]
 
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,
