@@ -59,7 +59,7 @@ export class NoteService {
     // console.log(_tags)
     // const _tagIds = _tags?.map((i) => i._id)
 
-    const _tagNames = tags.filter((i) => i)
+    const _tagNames = tags?.filter((i) => i)
     console.log(_tagNames)
 
     if (type === QueryType.user_preference) {
@@ -87,7 +87,7 @@ export class NoteService {
         {
           $addFields: {
             is_liked: {
-              $in: [user._id, '$like_user_ids'],
+              $in: [user?._id, '$like_user_ids'],
             },
           },
         },
