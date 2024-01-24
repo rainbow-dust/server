@@ -17,7 +17,7 @@ import { ApiName } from '~/common/decorator/openapi.decorator'
 
 import { MongoIdDto } from '../../shared/dto/id.dto'
 import { UserModel } from '../user/user.model'
-import { NoteDto, NoteList } from './note.dto'
+import { NoteDto, NoteListQuery } from './note.dto'
 import { PartialNoteModel } from './note.model'
 import { NoteService } from './note.service'
 
@@ -41,10 +41,10 @@ export class NoteController {
   @Post('/query/list')
   @ApiOperation({ summary: '分页获取博文' })
   async getPaginate(
-    @Body() noteList: NoteList,
+    @Body() noteQuery: NoteListQuery,
     @CurrentUser() user: UserModel,
   ) {
-    return this.noteService.notePaginate(noteList, user)
+    return this.noteService.notePaginate(noteQuery, user)
   }
 
   @Delete(':id')

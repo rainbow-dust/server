@@ -9,7 +9,7 @@ import { InjectModel } from '@nestjs/mongoose'
 
 import { TagModel } from '../tag/tag.model'
 import { UserModel } from '../user/user.model'
-import { NoteDto, NoteList, QueryType } from './note.dto'
+import { NoteDto, NoteListQuery, QueryType } from './note.dto'
 import { NoteModel, PartialNoteModel } from './note.model'
 
 @Injectable()
@@ -44,99 +44,64 @@ export class NoteService {
   }
 
   // FIXME 无法查询到当前页面之外的文章，需要分组查询
-  async notePaginate(note: NoteList, user) {
-    const { pageCurrent, pageSize, tags, sort, type, username } = note
+  async notePaginate(noteQuery: NoteListQuery, user) {
+    const { pageCurrent, pageSize, tags, sort, type, username } = noteQuery
 
     if (type === QueryType.user_preference) {
       // TODO
     }
 
-    // ...
-
-    // const noteList1 = await this.noteModel.aggregate([
-    //   {
-    //     $lookup: {
-    //       from: 'users',
-    //       localField: 'author',
-    //       foreignField: '_id',
-    //       as: 'author',
-    //       // 不要把所有的用户信息都返回...
-    //       pipeline: [
-    //         {
-    //           $project: {
-    //             password: 0,
-    //             authCode: 0,
-    //             admin: 0,
-    //           },
-    //         },
-    //       ],
-    //     },
-    //   },
-    //   {
-    //     $project: {
-    //       content: {
-    //         $substrCP: ['$content', 1, 100],
-    //       },
-    //       _id: 1,
-    //       title: 1,
-    //       created: 1,
-    //       cover: 1,
-    //       pic_urls: 1,
-    //       read: 1,
-    //       updatedAt: 1,
-    //       like_user_ids: 1,
-    //       like_count: {
-    //         $size: '$like_user_ids',
-    //       },
-    //       author: {
-    //         $arrayElemAt: ['$author', 0],
-    //       },
-    //     },
-    //   },
-    //   {
-    //     $match: {
-    //       'author.username': username || { $exists: true }, // 这里想要的是... 如果username存在，就匹配username，如果不存在，就匹配所有...但是有些没有author的文章，就会被排除掉...虽然是因为错误数据...
-    //     },
-    //   },
-    //   // {
-    //   //   $sort: {
-    //   //     read: sort != Sort.Newest ? -1 : 1,
-    //   //     created: -1,
-    //   //   },
-    //   // },
-    //   {
-    //     $skip: pageSize * (pageCurrent - 1),
-    //   },
-    //   {
-    //     $limit: pageSize,
-    //   },
-    // ])
-
-    // const noteList = await this.noteModel.populate(noteList1, 'author')
-
-    // 分页之后再做...
     const noteList = await this.noteModel
-      .find()
-      .populate('author')
-      .populate('tags')
-      .lean()
-
-    if (user?._id) {
-      noteList?.forEach((note) => {
-        note['is_liked'] = note.like_user_ids
-          ?.map((i) => i.toString())
-          .includes(user._id)
+      .aggregate([
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'author',
+            foreignField: '_id',
+            as: 'author',
+          },
+        },
+        {
+          $unwind: '$author',
+        },
+        {
+          $match: {
+            'author.username': username ? username : { $exists: true },
+          },
+        },
+        {
+          $lookup: {
+            from: 'tags',
+            localField: 'tags',
+            foreignField: '_id',
+            as: 'tags',
+          },
+        },
+        {
+          $addFields: {
+            is_liked: {
+              $in: [user._id, '$like_user_ids'],
+            },
+          },
+        },
+        {
+          $facet: {
+            metadata: [{ $count: 'totalCount' }],
+            noteList: [
+              { $sort: { username: -1 } },
+              { $skip: (pageCurrent - 1) * pageSize },
+              { $limit: pageSize },
+            ],
+          },
+        },
+      ]) // 这里返回的是一个数组...要脱壳
+      .then((res) => {
+        return {
+          totalCount: res[0].metadata[0].totalCount,
+          noteList: res[0].noteList,
+        }
       })
-    }
-
-    // 这里之后...要不压根不算 total...
-    const totalCount = await this.noteModel.count()
-    const totalPages = Math.ceil(totalCount / pageSize)
-    return {
-      noteList,
-      totalCount,
-      totalPages,
-    }
+    return noteList
   }
 
   async deleteNote(id: string) {
@@ -169,11 +134,10 @@ export class NoteService {
     if (hasLiked) {
       throw new BadRequestException('已点赞')
     }
-    return await this.noteModel.updateOne(
-      { _id: id },
-      { $push: { like_user_ids: user._id } },
-      { $inc: { like_count: 1 } },
-    )
+    return await this.noteModel.findByIdAndUpdate(id, {
+      $push: { like_user_ids: user._id },
+      $set: { like_count: _note.like_user_ids.length + 1 },
+    })
   }
 
   async unlike(id: string, user: UserModel) {
@@ -188,11 +152,10 @@ export class NoteService {
     if (!hasLiked) {
       throw new BadRequestException('未点赞')
     }
-    return await this.noteModel.updateOne(
-      { _id: id },
-      { $pull: { like_user_ids: user._id } },
-      { $inc: { like_count: -1 } },
-    )
+    return await this.noteModel.findByIdAndUpdate(id, {
+      $pull: { like_user_ids: user._id },
+      $set: { like_count: _note.like_user_ids.length - 1 },
+    })
   }
 
   get model() {

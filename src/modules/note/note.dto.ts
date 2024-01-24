@@ -43,7 +43,7 @@ export class NoteDto {
   pic_list?: Pic[]
 }
 
-export class NoteList extends paginateDto {
+export class NoteListQuery extends paginateDto {
   @ArrayUnique()
   @IsOptional()
   tags?: string[]

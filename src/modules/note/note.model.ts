@@ -47,15 +47,14 @@ export class NoteModel extends Document {
   })
   author: UserModel
 
-  @Prop([
-    {
-      type: () => mongoose.Schema.Types.ObjectId,
-      ref: 'UserModel',
-      message: '点赞用户',
-    },
-  ])
+  // 这里是...查询的时候这样方便很多，字符串数组，不用转类型。反正一般也不会想 populate 这个东西
+  @Prop({
+    type: [String],
+    message: '点赞用户',
+    default: [],
+  })
   @IsArray()
-  like_user_ids: UserModel[]
+  like_user_ids: string[]
 
   @Prop({ default: 0 })
   read_count: number
