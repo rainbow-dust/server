@@ -39,13 +39,28 @@ export class NoteService {
       throw new ForbiddenException('文章不存在')
     }
     await this.noteModel.updateOne({ _id: id }, { $inc: { read: 1 } })
-    const note = await this.noteModel.findById(id).populate('author').lean()
+    const note = await this.noteModel
+      .findById(id)
+      .populate('author tags')
+      .lean()
     return note
   }
 
   // FIXME 无法查询到当前页面之外的文章，需要分组查询
   async notePaginate(noteQuery: NoteListQuery, user) {
     const { pageCurrent, pageSize, tags, sort, type, username } = noteQuery
+
+    // // 找能找到的，去重去空
+    // const _tags = Array.from(new Set(await Promise.all(
+    //   tags?.map((i) => {
+    //     return this.tagModel.findOne({ name: i })
+    //   }),
+    // ))).filter((i) => i)
+    // console.log(_tags)
+    // const _tagIds = _tags?.map((i) => i._id)
+
+    const _tagNames = tags.filter((i) => i)
+    console.log(_tagNames)
 
     if (type === QueryType.user_preference) {
       // TODO
@@ -70,6 +85,13 @@ export class NoteService {
           },
         },
         {
+          $addFields: {
+            is_liked: {
+              $in: [user._id, '$like_user_ids'],
+            },
+          },
+        },
+        {
           $lookup: {
             from: 'tags',
             localField: 'tags',
@@ -78,12 +100,16 @@ export class NoteService {
           },
         },
         {
-          $addFields: {
-            is_liked: {
-              $in: [user._id, '$like_user_ids'],
-            },
+          // tags 是个数组，_tagNames 也是个数组... 要找 tags.name 也就是tags 数组里面的 name 和 _tagNames 数组里面的 name 有交集的
+          // 这里是不是用正则去搞一下更好一点？
+          // 嗯..想了想大概是可以做到的，大不了再来几个查询... 只是...现在这样写，tmd 这个 mongoose 是不是啥也没干啊...
+          $match: {
+            $or: [
+              _tagNames?.length > 0 ? { 'tags.name': { $in: _tagNames } } : {},
+            ],
           },
         },
+
         {
           $facet: {
             metadata: [{ $count: 'totalCount' }],
@@ -97,7 +123,7 @@ export class NoteService {
       ]) // 这里返回的是一个数组...要脱壳
       .then((res) => {
         return {
-          totalCount: res[0].metadata[0].totalCount,
+          totalCount: res[0].metadata[0]?.totalCount,
           noteList: res[0].noteList,
         }
       })
