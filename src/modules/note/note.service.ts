@@ -85,13 +85,6 @@ export class NoteService {
           },
         },
         {
-          $addFields: {
-            is_liked: {
-              $in: [user?._id, '$like_user_ids'],
-            },
-          },
-        },
-        {
           $lookup: {
             from: 'tags',
             localField: 'tags',
@@ -109,7 +102,13 @@ export class NoteService {
             ],
           },
         },
-
+        {
+          $addFields: {
+            is_liked: {
+              $in: [user?._id, '$like_user_ids'],
+            },
+          },
+        },
         {
           $facet: {
             metadata: [{ $count: 'totalCount' }],
@@ -160,10 +159,20 @@ export class NoteService {
     if (hasLiked) {
       throw new BadRequestException('已点赞')
     }
-    return await this.noteModel.findByIdAndUpdate(id, {
-      $push: { like_user_ids: user._id },
-      $set: { like_count: _note.like_user_ids.length + 1 },
-    })
+    return await this.noteModel
+      .findByIdAndUpdate(id, {
+        $push: { like_user_ids: user._id },
+        $set: { like_count: _note.like_user_ids.length + 1 },
+      })
+      .populate('author tags')
+      .lean()
+      .then((res) => {
+        return {
+          ...res,
+          is_liked: true,
+          like_count: res.like_count + 1,
+        }
+      })
   }
 
   async unlike(id: string, user: UserModel) {
@@ -178,10 +187,20 @@ export class NoteService {
     if (!hasLiked) {
       throw new BadRequestException('未点赞')
     }
-    return await this.noteModel.findByIdAndUpdate(id, {
-      $pull: { like_user_ids: user._id },
-      $set: { like_count: _note.like_user_ids.length - 1 },
-    })
+    return await this.noteModel
+      .findByIdAndUpdate(id, {
+        $pull: { like_user_ids: user._id },
+        $set: { like_count: _note.like_user_ids.length - 1 },
+      })
+      .populate('author tags')
+      .lean()
+      .then((res) => {
+        return {
+          ...res,
+          is_liked: false,
+          like_count: res.like_count - 1,
+        }
+      })
   }
 
   get model() {
