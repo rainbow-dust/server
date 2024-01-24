@@ -12,13 +12,15 @@ export class NoticeController {
   constructor(private readonly noticeService: NoticeService) {}
   // 这里除了给用户提示... 还可以作为一个日志，统计之类的地方
 
-  @Post()
+  @Post('count')
   @Auth()
-  async getNoticeByUser(
-    @Body() type: string,
+  async getNoticeCountByUser(@CurrentUser() user, @Body() type?: string) {
+    return await this.noticeService.getNoticeCount(user, type)
+  }
 
-    @CurrentUser() user,
-  ) {
-    return await this.noticeService.getNoticeByUser(user)
+  @Post('query/list')
+  @Auth()
+  async readNoticeList(@CurrentUser() user, @Body() type?: string) {
+    return await this.noticeService.getNoticeDetail(user, type)
   }
 }

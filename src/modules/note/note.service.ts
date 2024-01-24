@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 
+import { NoticeService } from '../notice/notice.service'
 import { TagModel } from '../tag/tag.model'
 import { UserModel } from '../user/user.model'
 import { NoteDto, NoteListQuery, QueryType } from './note.dto'
@@ -19,6 +20,7 @@ export class NoteService {
     private readonly noteModel: Model<NoteModel>,
     @InjectModel('TagModel')
     private readonly tagModel: Model<TagModel>,
+    private readonly noticeService: NoticeService,
   ) {}
   async create(note: NoteDto, user: UserModel) {
     const tags = await Promise.all(
@@ -159,6 +161,17 @@ export class NoteService {
     if (hasLiked) {
       throw new BadRequestException('已点赞')
     }
+
+    // TODO 通知作者
+    await this.noticeService.createNotice({
+      type: 'like',
+      topic: _note,
+      description: '点赞了你的文章',
+      is_read: false,
+      from: user,
+      to: _note.author,
+    })
+
     return await this.noteModel
       .findByIdAndUpdate(id, {
         $push: { like_user_ids: user._id },
