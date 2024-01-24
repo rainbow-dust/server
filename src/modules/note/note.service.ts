@@ -88,7 +88,7 @@ export class NoteService {
           $facet: {
             metadata: [{ $count: 'totalCount' }],
             noteList: [
-              { $sort: { username: -1 } },
+              { $sort: { created_at: -1 } },
               { $skip: (pageCurrent - 1) * pageSize },
               { $limit: pageSize },
             ],
