@@ -27,10 +27,13 @@ export class NoticeService {
   }
 
   async getNoticeDetail(user, type) {
-    const list = await this.noticeModel.find({
-      to: user._id,
-      // type,
-    })
+    const list = await this.noticeModel
+      .find({
+        to: user._id,
+        // type,
+      })
+      .populate('from', 'username avatar')
+      .sort({ create_at: -1 })
 
     // 存一下结果，然后改已读..这里之后也得搞分页...
     const ids = list.map((i) => i._id)
