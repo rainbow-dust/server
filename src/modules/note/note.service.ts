@@ -24,8 +24,8 @@ export class NoteService {
   ) {}
   async create(note: NoteDto, user: UserModel) {
     const tags = await Promise.all(
-      note.tags?.map((i) => {
-        return this.tagModel.findById(i)
+      note.tags?.map((name: string) => {
+        return this.tagModel.findOne({ name })
       }),
     )
     return this.noteModel.create({
