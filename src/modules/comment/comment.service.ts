@@ -89,11 +89,15 @@ export class CommentService {
     if (comment.like_user_ids.includes(user._id)) {
       throw new BadRequestException('已经点赞过了')
     }
-    await this.commentModel.findByIdAndUpdate(comment_id, {
-      $inc: { like_count: 1 },
-      $push: { like_user_ids: user._id },
-    })
-    return { success: true }
+    const newComment = await this.commentModel
+      .findByIdAndUpdate(comment_id, {
+        $inc: { like_count: 1 },
+        $push: { like_user_ids: user._id },
+      })
+      .lean()
+    newComment['is_liked'] = true
+    newComment['like_count'] += 1 // 为什么这个不是给出修改后的结果...还要自己这里做样子...
+    return newComment
   }
 
   async cancelLike(comment_id: string, user: UserModel) {
@@ -104,10 +108,15 @@ export class CommentService {
     if (!comment.like_user_ids.includes(user._id)) {
       throw new BadRequestException('未点赞过')
     }
-    await this.commentModel.findByIdAndUpdate(comment_id, {
-      $inc: { like_count: -1 },
-      $pull: { like_user_ids: user._id },
-    })
-    return { success: true }
+
+    const newComment = await this.commentModel
+      .findByIdAndUpdate(comment_id, {
+        $inc: { like_count: -1 },
+        $pull: { like_user_ids: user._id },
+      })
+      .lean()
+    newComment['is_liked'] = false
+    newComment['like_count'] -= 1
+    return newComment
   }
 }
