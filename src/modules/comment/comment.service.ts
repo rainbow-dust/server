@@ -33,7 +33,7 @@ export class CommentService {
       note_id,
       content,
       root_comment_id,
-      mentionee_id,
+      mentionee: mentionee_id,
     })
     await this.noteModel.findByIdAndUpdate(note_id, {
       $inc: { comment_count: 1 },
@@ -68,7 +68,7 @@ export class CommentService {
     }
     const childComment = await this.commentModel
       .find({ root_comment_id })
-      .populate('author')
+      .populate('author mentionee')
       .lean()
 
     if (user?._id) {

@@ -67,5 +67,5 @@ export class CommentModel extends Document {
     ref: 'UserModel',
     message: '被回复者，在 child_comment 中@回复某人时有',
   })
-  mentionee_id: UserModel
+  mentionee: UserModel
 }
