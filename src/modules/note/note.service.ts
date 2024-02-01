@@ -21,6 +21,7 @@ export class NoteService {
     @InjectModel('TagModel')
     private readonly tagModel: Model<TagModel>,
     private readonly noticeService: NoticeService,
+    private readonly userModel: Model<UserModel>,
   ) {}
   async create(note: NoteDto, user: UserModel) {
     const tags = await Promise.all(
@@ -162,7 +163,8 @@ export class NoteService {
       throw new BadRequestException('已点赞')
     }
 
-    // TODO 通知作者
+    // 这里要考虑一个问题...。。。如果是自己点赞自己的文章，那么就不需要通知了,另一个是，如果短时间内点赞了多次，那么也不需要通知了
+    // 但要在哪里缓存? 还是就通过数据库里的 (created_at) + from + to + type + topic 来判断?
     await this.noticeService.createNotice({
       type: 'like',
       topic: _note,
@@ -171,6 +173,14 @@ export class NoteService {
       from: user,
       to: _note.author,
     })
+
+    // 在 user 表里面的 like_note_ids 里面添加这个文章的 id
+    await this.userModel.updateOne(
+      { _id: user._id },
+      {
+        $push: { like_note_ids: _note._id },
+      },
+    )
 
     return await this.noteModel
       .findByIdAndUpdate(id, {
@@ -200,6 +210,15 @@ export class NoteService {
     if (!hasLiked) {
       throw new BadRequestException('未点赞')
     }
+
+    // 在 user 表里面的 like_note_ids 里面删除这个文章的 id
+    await this.userModel.updateOne(
+      { _id: user._id },
+      {
+        $pull: { like_note_ids: _note._id },
+      },
+    )
+
     return await this.noteModel
       .findByIdAndUpdate(id, {
         $pull: { like_user_ids: user._id },

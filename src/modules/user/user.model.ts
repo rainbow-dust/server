@@ -60,9 +60,10 @@ export class UserModel extends Document {
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,
     ref: 'NoteModel',
+    select: false,
   })
   @IsArray()
-  likes: NoteModel[]
+  like_note_ids: NoteModel[]
 
   @IsArray()
   collects: CollectModel[]
