@@ -21,6 +21,7 @@ export class NoteService {
     @InjectModel('TagModel')
     private readonly tagModel: Model<TagModel>,
     private readonly noticeService: NoticeService,
+    @InjectModel('UserModel')
     private readonly userModel: Model<UserModel>,
   ) {}
   async create(note: NoteDto, user: UserModel) {
@@ -175,6 +176,7 @@ export class NoteService {
     })
 
     // 在 user 表里面的 like_note_ids 里面添加这个文章的 id
+    // 想想...也许单独再搞一个表也是可以的...查询的时候找的接口可能也会，更符合常理一些...直接塞到 user 表里查虽然也不是不行但是...还是有点怪吧...
     await this.userModel.updateOne(
       { _id: user._id },
       {
@@ -233,6 +235,21 @@ export class NoteService {
           like_count: res.like_count - 1,
         }
       })
+  }
+
+  // 查询某个用户的所有点赞，数据就在 user 表里面的 like_note_ids 里面
+  async getUserLikes(username: string) {
+    const user = await this.userModel
+      .findOne({ username })
+      .select('like_note_ids')
+    console.log(user)
+    const noteList = await this.noteModel
+      .find({
+        _id: { $in: user.like_note_ids },
+      })
+      .populate('author tags')
+      .lean()
+    return noteList
   }
 
   get model() {
