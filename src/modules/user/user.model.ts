@@ -40,6 +40,7 @@ export class UserModel extends Document {
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,
     ref: 'UserModel',
+    default: [],
   })
   @IsArray()
   followees: UserModel[]
@@ -50,6 +51,7 @@ export class UserModel extends Document {
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,
     ref: 'UserModel',
+    default: [],
   })
   @IsArray()
   followers: UserModel[]

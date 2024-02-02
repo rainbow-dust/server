@@ -60,11 +60,9 @@ export class NoteService {
     //     return this.tagModel.findOne({ name: i })
     //   }),
     // ))).filter((i) => i)
-    // console.log(_tags)
     // const _tagIds = _tags?.map((i) => i._id)
 
     const _tagNames = tags?.filter((i) => i)
-    console.log(_tagNames)
 
     if (type === QueryType.user_preference) {
       // TODO
@@ -237,12 +235,10 @@ export class NoteService {
       })
   }
 
-  // 查询某个用户的所有点赞，数据就在 user 表里面的 like_note_ids 里面
   async getUserLikes(username: string) {
     const user = await this.userModel
       .findOne({ username })
       .select('like_note_ids')
-    console.log(user)
     const noteList = await this.noteModel
       .find({
         _id: { $in: user.like_note_ids },

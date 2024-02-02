@@ -1,5 +1,5 @@
 import { compareSync, hashSync } from 'bcrypt'
-import { Model } from 'mongoose'
+import { Model, Types } from 'mongoose'
 import { nanoid } from 'nanoid'
 
 import { ForbiddenException, Injectable } from '@nestjs/common'
@@ -69,15 +69,80 @@ export class UserService {
   }
 
   async getUserInfo(username: string, currentUser?: UserModel) {
-    const _user = await this.userModel.findOne({ username })
+    // string 和 ObjectId 不能直接比较，所以要把 string 转成 ObjectId
+
+    //  currentUser?._id
+    const _currentUser = new Types.ObjectId(currentUser?._id)
+
+    const _user = await this.userModel
+      // .findOne({ username })
+      // // 选择需要多返回的字段
+      // .select([
+      //   'username',
+      //   'nickname',
+      //   'avatar_url',
+      //   'bio',
+      //   'followers',
+      //   'followees',
+      //   'createdAt',
+      //   'updatedAt',
+      // ])
+      // .populate('followers followees')
+      // 上面的代码有问题... followers 和 followees 是数组，然后存在循环引用
+      .aggregate([
+        {
+          $match: { username },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'followers',
+            foreignField: '_id',
+            as: 'followers',
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'followees',
+            foreignField: '_id',
+            as: 'followees',
+          },
+        },
+
+        {
+          $project: {
+            username: 1,
+            nickname: 1,
+            avatar_url: 1,
+            bio: 1,
+            followers: {
+              username: 1,
+              nickname: 1,
+              avatar_url: 1,
+              _id: 1,
+            },
+            followees: {
+              username: 1,
+              nickname: 1,
+              avatar_url: 1,
+            },
+            createdAt: 1,
+            updatedAt: 1,
+          },
+        },
+        {
+          $addFields: {
+            is_following: {
+              $in: [_currentUser, '$followers._id'],
+            },
+          },
+        },
+      ])
+      // 不要包 data..
+      .then((res) => res[0])
     if (!_user) {
       throw new ForbiddenException('用户还不存在哦')
-    }
-    console.log(currentUser)
-    if (currentUser?._id) {
-      _user['is_followed'] = !!_user?.followers?.find(
-        (follower) => follower === currentUser._id,
-      )
     }
     return _user
   }
