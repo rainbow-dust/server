@@ -1,4 +1,4 @@
-import { IsArray, IsString } from 'class-validator'
+import { IsArray, IsBoolean, IsString } from 'class-validator'
 import mongoose, { Document } from 'mongoose'
 
 import { Prop, Schema } from '@nestjs/mongoose'
@@ -10,31 +10,36 @@ import { UserModel } from '../user/user.model'
   collection: 'collects',
   toObject: { virtuals: true, getters: true },
   timestamps: {
-    createdAt: 'created',
+    createdAt: 'created_at',
     updatedAt: false,
   },
   versionKey: false,
 })
 export class CollectModel extends Document {
-  @Prop({ unique: true })
-  @IsString({ message: '通知名？' })
+  @Prop({ required: true })
+  @IsString({ message: '收藏名' })
   name: string
 
   @Prop()
-  @IsString({ message: '通知描述' })
-  message: string
-
-  @Prop()
-  @IsString({ message: '通知类型' })
-  type: string
+  @IsString({ message: '收藏描述' })
+  desc: string
 
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,
     ref: 'UserModel',
+    required: true,
   })
   creator: UserModel
 
-  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'NoteModel' }])
+  @Prop()
+  @IsBoolean()
+  is_public: boolean
+
+  @Prop({
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: 'NoteModel',
+    select: false,
+  })
   @IsArray()
-  note: NoteModel[]
+  notes: NoteModel[]
 }
