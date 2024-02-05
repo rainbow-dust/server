@@ -71,7 +71,7 @@ export class UserController {
     return this.userService.model.findOne({ username: user.username })
   }
 
-  @Get('/:username')
+  @Get('info/:username')
   @ApiOperation({ summary: '获取指定用户名的信息' })
   getUserInfo(@Param('username') username: string, @CurrentUser() user) {
     return this.userService.getUserInfo(username, user)
