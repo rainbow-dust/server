@@ -24,6 +24,11 @@ export class CommentService {
       throw new BadRequestException('文章不存在')
     }
     if (root_comment_id) {
+      // 检验根评论是否存在
+      const rootComment = await this.commentModel.findById(root_comment_id)
+      if (!rootComment) {
+        throw new BadRequestException('根评论不存在了哦')
+      }
       await this.commentModel.findByIdAndUpdate(root_comment_id, {
         $inc: { child_comment_count: 1 },
       })
