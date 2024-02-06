@@ -32,6 +32,7 @@ export class NoteService {
     )
     return this.noteModel.create({
       ...note,
+      cover: note.pic_list?.[0], // 将第一张图片作为封面
       author: user._id,
       tags: tags?.map((i) => i._id),
     })

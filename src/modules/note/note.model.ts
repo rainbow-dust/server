@@ -23,8 +23,14 @@ export class NoteModel extends Document {
   @Prop()
   content: string
 
-  @Prop()
-  cover?: string
+  @Prop({
+    type: {
+      url: String,
+      width: Number,
+      height: Number,
+    },
+  })
+  cover: Pic
 
   @Prop()
   @IsArray()
