@@ -4,6 +4,10 @@ import { CollectModel } from '~/modules/collect/collect.model'
 import { CommentModel } from '~/modules/comment/comment.model'
 import { NoteModel } from '~/modules/note/note.model'
 import { NoticeModel } from '~/modules/notice/notice.model'
+import {
+  StatisticActionsModel,
+  StatisticsModel,
+} from '~/modules/statistics/statistics.model'
 import { TagModel } from '~/modules/tag/tag.model'
 import { UserModel } from '~/modules/user/user.model'
 
@@ -14,6 +18,8 @@ export const databaseModels = [
   CommentModel,
   CollectModel,
   NoticeModel,
+  StatisticsModel,
+  StatisticActionsModel,
 ].map((model: any) =>
   MongooseModule.forFeature([
     { name: model.name, schema: SchemaFactory.createForClass(model) },
