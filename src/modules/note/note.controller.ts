@@ -32,12 +32,16 @@ export class NoteController {
     return await this.noteService.create(note, user)
   }
 
+  // 这里除了 tag, 也考虑查出来收录它的 collect
+  // 以及这里可以用来，更新 user 的 preference...可能算我懒..喜欢和收藏的地方也可以但好像要在好多地方写...
+  // 总之推荐系统要考虑开始搞了，虽然现在没啥数据...
   @Get(':id')
   @ApiOperation({ summary: '根据 id 查文章' })
   async findLostById(@Param('id') id: string) {
     return this.noteService.findNoteById(id)
   }
 
+  // 这个接口处理的更多的是有条件的查询
   @Post('/query/list')
   @ApiOperation({ summary: '分页获取博文' })
   async getPaginate(
@@ -46,6 +50,13 @@ export class NoteController {
   ) {
     return this.noteService.notePaginate(noteQuery, user)
   }
+
+  // 这里专门处理推荐的问题
+  // @Post('/query/recommend')
+  // @ApiOperation({ summary: '获取推荐文章' })
+  // async getRecommend(@CurrentUser() user: UserModel) {
+  //   return this.noteService.getRecommend(user)
+  // }
 
   @Delete(':id')
   @Auth()

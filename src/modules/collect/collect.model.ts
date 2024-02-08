@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsString } from 'class-validator'
+import { IsArray, IsBoolean, IsOptional, IsString } from 'class-validator'
 import mongoose, { Document } from 'mongoose'
 
 import { Prop, Schema } from '@nestjs/mongoose'
@@ -30,6 +30,13 @@ export class CollectModel extends Document {
     required: true,
   })
   creator: UserModel
+
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'UserModel' }],
+    // 类似...多人协作
+  })
+  @IsOptional()
+  maintainer: UserModel[]
 
   @Prop()
   @IsBoolean()

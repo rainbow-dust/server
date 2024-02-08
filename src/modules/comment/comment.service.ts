@@ -99,6 +99,7 @@ export class CommentService {
         $inc: { like_count: 1 },
         $push: { like_user_ids: user._id },
       })
+      .populate('author mentionee')
       .lean()
     newComment['is_liked'] = true
     newComment['like_count'] += 1 // 为什么这个不是给出修改后的结果...还要自己这里做样子...
@@ -119,6 +120,7 @@ export class CommentService {
         $inc: { like_count: -1 },
         $pull: { like_user_ids: user._id },
       })
+      .populate('author mentionee')
       .lean()
     newComment['is_liked'] = false
     newComment['like_count'] -= 1

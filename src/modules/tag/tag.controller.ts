@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Query } from '@nestjs/common'
+import { Body, Controller, Param, Post, Query } from '@nestjs/common'
 
 import { ApiName } from '~/common/decorator/openapi.decorator'
 
@@ -18,5 +18,10 @@ export class TagController {
   @Post('/query')
   async query(@Query('query_str') query: string) {
     return this.tagService.query(query)
+  }
+
+  @Post('/query/:tagName')
+  async queryDetail(@Param('tagName') name: string) {
+    return this.tagService.queryDetail(name)
   }
 }

@@ -29,13 +29,13 @@ related projects:
   - and base on tag and user info... we have building a simple search and recommendation system
 - collect
   - create/modify/query/delete collect
-  - it will be used for user to collect note, tag, user...
+  - it will be used for user to collect note... it will be used for user to organize their own data and also for recommendation system
 - notice
   - create/modify/query/delete note
   - it will be used for notice user when someone like, comment, collect, follow, or system notice...
-- user_action
-  - create/modify/query/delete user_action
-  - it will record user's action with support of front-end, like login, logout, click, view, staying time...  
+- statistic
+  - query statistic info
+  - it mainly about two part, one is the server itself, the other is the user, data will be store in 'statistic' and 'statistic_action'
 
 ## deployment
 

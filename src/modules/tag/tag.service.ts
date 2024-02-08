@@ -47,4 +47,8 @@ export class TagService {
     ])
     return tags
   }
+
+  async queryDetail(name: string) {
+    return this.tagModel.findOne({ name })
+  }
 }
