@@ -76,11 +76,12 @@ export class UserModel extends Document {
   @Prop()
   be_collected_count: number
 
-  @Prop({
-    type: () => mongoose.Schema.Types.ObjectId,
-    ref: 'TagModel',
-    select: false,
-  })
+  @Prop()
   @IsArray()
-  preferences: TagModel[]
+  preferences: Preference[]
+}
+
+interface Preference {
+  tag: TagModel
+  score: number
 }

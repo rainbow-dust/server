@@ -37,8 +37,8 @@ export class NoteController {
   // 总之推荐系统要考虑开始搞了，虽然现在没啥数据...
   @Get(':id')
   @ApiOperation({ summary: '根据 id 查文章' })
-  async findLostById(@Param('id') id: string) {
-    return this.noteService.findNoteById(id)
+  async findLostById(@Param('id') id: string, @CurrentUser() user: UserModel) {
+    return this.noteService.findNoteById(id, user)
   }
 
   // 这个接口处理的更多的是有条件的查询
@@ -51,12 +51,19 @@ export class NoteController {
     return this.noteService.notePaginate(noteQuery, user)
   }
 
-  // 这里专门处理推荐的问题
-  // @Post('/query/recommend')
-  // @ApiOperation({ summary: '获取推荐文章' })
-  // async getRecommend(@CurrentUser() user: UserModel) {
-  //   return this.noteService.getRecommend(user)
-  // }
+  @Post('/query/recommend')
+  @ApiOperation({ summary: '获取推荐文章' })
+  async getRecommend(
+    @CurrentUser() user: UserModel,
+    @Body()
+    pagination: {
+      pageCurrent?: number
+      pageSize: number
+      lastId?: string
+    },
+  ) {
+    return this.noteService.getRecommend(pagination, user)
+  }
 
   @Delete(':id')
   @Auth()

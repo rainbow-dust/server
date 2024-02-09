@@ -38,10 +38,37 @@ export class NoteService {
     })
   }
 
-  async findNoteById(id: string) {
-    const _note = await this.noteModel.findById(id)
+  async findNoteById(id: string, user: UserModel) {
+    const _note = await this.noteModel.findById(id).select('tags')
     if (!_note) {
       throw new ForbiddenException('文章不存在')
+    }
+    if (user?._id) {
+      // 有则更新权重，无则创建, 对于 preferences 中存在的 tag，权重 + 1，不存在则创建
+      const _user = await this.userModel
+        .findById(user._id)
+        .select('preferences')
+      const _preferences = _user.preferences
+      const _newPreferences = _preferences.map((i) => {
+        if (_note.tags.includes(i.tag)) {
+          i.score += 1
+          return i
+        }
+        return i
+      })
+      _note.tags.forEach((i) => {
+        if (!_preferences.find((j) => j.tag.toString() === i.toString())) {
+          _newPreferences.push({ tag: i, score: 1 })
+        }
+      })
+
+      await this.userModel.updateOne(
+        { _id: user._id },
+        {
+          $set: { preferences: _newPreferences },
+        },
+      )
+      console.log(_newPreferences)
     }
     await this.noteModel.updateOne({ _id: id }, { $inc: { read: 1 } })
     const note = await this.noteModel
@@ -49,6 +76,33 @@ export class NoteService {
       .populate('author tags')
       .lean()
     return note
+  }
+
+  async getRecommend(
+    pagination: { pageCurrent?: number; pageSize: number; lastId?: string },
+    user: UserModel,
+  ) {
+    console.log(pagination)
+    let _preferences = []
+    if (user?._id) {
+      const _user = await this.userModel
+        .findById(user._id)
+        .select('preferences')
+      _preferences = _user.preferences
+    }
+
+    // TODO
+    // 这里要结合，用户喜好，内容相似度，热度等等... 另外也要考虑不要重复推荐，不要推荐已经看过的...至少别单次使用内就重复，不要推荐点过喜欢的...
+    // 现在的想法是，一次会话内，做一个个区间，因为ObjectId 是有序的，所以可以用这个来作为分界。然后每次查询的时候，都是查询这个分界之后的数据，去掉点过喜欢的，然后再根据用户的喜好，内容相似度，热度等等来排序，选出最合适的几篇文章。
+
+    // 这里先简单的返回一些热门的文章
+    const noteList = await this.noteModel
+      .find({ _id: { $ne: pagination.lastId } })
+      .sort({ like_count: -1 })
+      .limit(pagination.pageSize)
+      .populate('author tags')
+      .lean()
+    return noteList
   }
 
   // FIXME 无法查询到当前页面之外的文章，需要分组查询
