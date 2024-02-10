@@ -75,6 +75,13 @@ export class NoteService {
       .findById(id)
       .populate('author tags')
       .lean()
+      // 加 is_liked 字段
+      .then((res) => {
+        return {
+          ...res,
+          is_liked: user?._id ? res.like_user_ids.includes(user._id) : false,
+        }
+      })
     return note
   }
 
