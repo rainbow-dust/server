@@ -308,23 +308,27 @@ export class NoteService {
       .select('like_note_ids')
     const _likeNoteIds = _user.like_note_ids
 
-    const noteList = await this.noteModel
-      .find({ _id: { $in: _likeNoteIds } })
-      .sort({ created_at: -1 })
-      .skip((pageCurrent - 1) * pageSize)
-      .limit(pageSize)
-      .populate('author tags')
-      .lean()
-
+    let _c_user
     if (user?._id) {
-      const _c_user = await this.userModel
-        .findById(user._id)
-        .select('like_note_ids')
-      const _c_likeNoteIds = _c_user.like_note_ids
-      noteList.forEach((i) => {
-        i['is_liked'] = _c_likeNoteIds.includes(i._id)
-      })
+      _c_user = await this.userModel.findById(user._id).select('like_note_ids')
     }
+    const noteList = Promise.all(
+      _likeNoteIds
+        .slice((pageCurrent - 1) * pageSize, pageCurrent * pageSize)
+        .map((i) => {
+          return this.noteModel.findById(i).populate('author tags').lean()
+        }),
+    ).then((res) => {
+      return res.map((i) => {
+        return {
+          ...i,
+          is_liked: _c_user.like_note_ids?.some(
+            (j) => j.toString() === i._id.toString(),
+          ),
+        }
+      })
+    })
+
     return noteList
   }
 
