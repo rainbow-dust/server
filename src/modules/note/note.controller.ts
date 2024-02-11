@@ -115,9 +115,12 @@ export class NoteController {
     return await this.noteService.unlike(id, user)
   }
 
-  @Get('/:username/likes')
+  @Post('/:username/likes')
   @ApiOperation({ summary: '获取指定用户的点赞列表' })
-  async getUserLikes(@Param('username') username: string) {
-    return await this.noteService.getUserLikes(username)
+  async getUserLikes(
+    @Param('username') username: string,
+    @Body() noteQuery: NoteListQuery,
+  ) {
+    return await this.noteService.getUserLikes(username, noteQuery)
   }
 }

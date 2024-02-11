@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common'
+import { Body, Controller, Param, Post } from '@nestjs/common'
 
 import { Auth } from '~/common/decorator/auth.decorator'
 import { CurrentUser } from '~/common/decorator/current-user.decorator'
@@ -23,21 +23,30 @@ export class CollectController {
     return this.collectService.create(collect, user)
   }
 
-  // 查询收藏夹们 by user...要 auth
+  // 查询收藏夹们 by user...要 auth...?不行
   @Post('query/list')
-  @Auth()
-  async queryCollectList(@CurrentUser() user: UserModel) {
-    return this.collectService.queryList(user)
+  async queryCollectList(
+    @Body()
+    collectListQueryDto: {
+      username: string
+      noteId?: string // 有这个参数就返回收藏夹内是否有这个文章
+    },
+  ) {
+    return this.collectService.queryList(collectListQueryDto)
   }
 
   // 查询一个收藏夹的详情
   @Post('query/detail')
   @Auth()
   async queryCollectDetail(
-    @Body('collectId') collectId: string,
+    @Body()
+    collectDetailQueryDto: {
+      collectId: string
+      noteId?: string // 有这个参数就返回收藏夹内是否有这个文章
+    },
     @CurrentUser() user: UserModel,
   ) {
-    return this.collectService.queryDetail(collectId, user)
+    return this.collectService.queryDetail(collectDetailQueryDto, user)
   }
 
   // 修改收藏夹基本信息 by id
@@ -64,21 +73,25 @@ export class CollectController {
   @Post(':id/add')
   @Auth()
   async addNoteToCollect(
-    @Body('noteId') noteId: string,
-    @Body('collectId') collectId: string,
+    @Body() collectNoteDto: { noteId: string; collectId: string },
+    @Param('id') collectId: string,
     @CurrentUser() user: UserModel,
   ) {
-    return this.collectService.addNoteToCollect(noteId, collectId, user)
+    return this.collectService.addNoteToCollect(collectNoteDto, collectId, user)
   }
 
   // 取消收藏文章
   @Post(':id/remove')
   @Auth()
   async removeNoteFromCollect(
-    @Body('noteId') noteId: string,
-    @Body('collectId') collectId: string,
+    @Body() collectNoteDto: { noteId: string; collectId: string },
+    @Param('id') collectId: string,
     @CurrentUser() user: UserModel,
   ) {
-    return this.collectService.removeNoteFromCollect(noteId, collectId, user)
+    return this.collectService.removeNoteFromCollect(
+      collectNoteDto,
+      collectId,
+      user,
+    )
   }
 }

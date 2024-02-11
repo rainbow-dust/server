@@ -297,16 +297,57 @@ export class NoteService {
       })
   }
 
-  async getUserLikes(username: string) {
-    const user = await this.userModel
-      .findOne({ username })
-      .select('like_note_ids')
+  async getUserLikes(username: string, noteQuery: NoteListQuery) {
+    const { pageCurrent, pageSize } = noteQuery
     const noteList = await this.noteModel
-      .find({
-        _id: { $in: user.like_note_ids },
+      .aggregate([
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'author',
+            foreignField: '_id',
+            as: 'author',
+          },
+        },
+        {
+          $unwind: '$author',
+        },
+        {
+          $match: {
+            'author.username': username,
+          },
+        },
+        {
+          $lookup: {
+            from: 'tags',
+            localField: 'tags',
+            foreignField: '_id',
+            as: 'tags',
+          },
+        },
+        {
+          $addFields: {
+            is_liked: true,
+          },
+        },
+        {
+          $facet: {
+            metadata: [{ $count: 'totalCount' }],
+            noteList: [
+              { $sort: { created_at: -1 } },
+              { $skip: (pageCurrent - 1) * pageSize },
+              { $limit: pageSize },
+            ],
+          },
+        },
+      ]) // 这里返回的是一个数组...要脱壳
+      .then((res) => {
+        return {
+          totalCount: res[0].metadata[0]?.totalCount,
+          noteList: res[0].noteList,
+        }
       })
-      .populate('author tags')
-      .lean()
+
     return noteList
   }
 
