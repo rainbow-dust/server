@@ -45,7 +45,6 @@ export class CollectModel extends Document {
   @Prop({
     type: [mongoose.Schema.Types.ObjectId],
     ref: 'NoteModel',
-    select: false,
   })
   @IsArray()
   notes: NoteModel[]
