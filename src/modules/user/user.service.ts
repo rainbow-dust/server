@@ -77,20 +77,6 @@ export class UserService {
     const _currentUser = new Types.ObjectId(currentUser?._id)
 
     const _user = await this.userModel
-      // .findOne({ username })
-      // // 选择需要多返回的字段
-      // .select([
-      //   'username',
-      //   'nickname',
-      //   'avatar_url',
-      //   'bio',
-      //   'followers',
-      //   'followees',
-      //   'createdAt',
-      //   'updatedAt',
-      // ])
-      // .populate('followers followees')
-      // 上面的代码有问题... followers 和 followees 是数组，然后存在循环引用
       .aggregate([
         {
           $match: { username },
@@ -145,6 +131,18 @@ export class UserService {
       .then((res) => res[0])
     if (!_user) {
       throw new ForbiddenException('用户还不存在哦')
+    }
+    // 做点好玩的，如果不是自己，就尝试，找一下CurrentUser的关注列表里有没有关注这个人的，形成一个数组
+    if (currentUser?._id && currentUser?._id != _user._id) {
+      const _currentUser = await this.userModel.findById(currentUser._id)
+      // _user.followers 与 _currentUser.followees 的交集
+      const intersection = _user.followers.filter((value) => {
+        // return _currentUser.followees.includes(value._id) ... 该死的类型
+        return _currentUser.followees.some(
+          (v) => v.toString() === value._id.toString(),
+        )
+      })
+      _user['mutual_follows'] = intersection
     }
     return _user
   }
