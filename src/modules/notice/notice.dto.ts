@@ -3,7 +3,7 @@ import { NoteModel } from '../note/note.model'
 import { UserModel } from '../user/user.model'
 
 export class NoticeDto {
-  type: 'like' | 'comment' | 'follow' | 'reply'
+  type: 'like' | 'comment' | 'follow' | 'reply' | 'collect'
   topic: UserModel | NoteModel | CommentModel
   description: string
   is_read: boolean

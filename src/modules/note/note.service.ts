@@ -224,8 +224,6 @@ export class NoteService {
       throw new BadRequestException('已点赞')
     }
 
-    // 这里要考虑一个问题...。。。如果是自己点赞自己的文章，那么就不需要通知了,另一个是，如果短时间内点赞了多次，那么也不需要通知了
-    // 但要在哪里缓存? 还是就通过数据库里的 (created_at) + from + to + type + topic 来判断?
     await this.noticeService.createNotice({
       type: 'like',
       topic: _note,

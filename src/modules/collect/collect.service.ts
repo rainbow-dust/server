@@ -3,6 +3,8 @@ import { Model } from 'mongoose'
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 
+import { NoteModel } from '../note/note.model'
+import { NoticeService } from '../notice/notice.service'
 import { UserModel } from '../user/user.model'
 import { CollectModifyDto } from './collect.dto'
 import { CollectModel } from './collect.model'
@@ -14,6 +16,9 @@ export class CollectService {
     private readonly collectModel: Model<CollectModel>,
     @InjectModel('UserModel')
     private readonly userModel: Model<UserModel>,
+    @InjectModel('NoteModel')
+    private readonly noteModel: Model<NoteModel>,
+    private readonly noticeService: NoticeService,
   ) {}
 
   async create(collect: CollectModifyDto, user: UserModel) {
@@ -88,6 +93,21 @@ export class CollectService {
     if (_collect.notes.includes(collectNoteDto.noteId)) {
       throw new Error('已经收藏了这篇文章')
     }
+    // 更新 note 的 collect_count 字段
+    const _note = await this.noteModel
+      .updateOne({ _id: collectNoteDto.noteId }, { $inc: { collect_count: 1 } })
+      .then((res) => {
+        return this.noteModel.findById(collectNoteDto.noteId)
+      })
+
+    await this.noticeService.createNotice({
+      type: 'collect',
+      topic: _note._id,
+      description: '收藏了你的文章',
+      is_read: false,
+      from: user._id,
+      to: _note.author,
+    })
 
     return this.collectModel.updateOne(
       { _id: collectId },
@@ -104,6 +124,12 @@ export class CollectService {
     if (_collect.creator.toString() != user._id) {
       throw new Error('无修改权限')
     }
+
+    await this.noteModel.updateOne(
+      { _id: collectNoteDto.noteId },
+      { $inc: { collect_count: -1 } },
+    )
+
     return this.collectModel.updateOne(
       { _id: collectId },
       { $pull: { notes: collectNoteDto.noteId } },

@@ -70,6 +70,9 @@ export class NoteModel extends Document {
 
   @Prop({ default: 0 })
   comment_count: number
+
+  @Prop({ default: 0 })
+  collect_count: number
 }
 
 export interface Pic {

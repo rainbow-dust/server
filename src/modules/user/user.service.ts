@@ -7,6 +7,7 @@ import { InjectModel } from '@nestjs/mongoose'
 
 import { UserModel } from '~/modules/user/user.model'
 
+import { NoticeService } from '../notice/notice.service'
 import { UserDetailDto, UserDto } from './user.dto'
 
 @Injectable()
@@ -14,6 +15,7 @@ export class UserService {
   constructor(
     @InjectModel('UserModel')
     private readonly userModel: Model<UserModel>,
+    private readonly noticeService: NoticeService,
   ) {}
   async createUser(user: UserDto) {
     const hasMaster = !!(await this.userModel.count())
@@ -172,6 +174,14 @@ export class UserService {
       { _id: _mentionee._id },
       { $push: { followers: _user._id } },
     )
+    await this.noticeService.createNotice({
+      type: 'follow',
+      topic: _mentionee._id,
+      description: '关注了你',
+      is_read: false,
+      from: _user._id,
+      to: _mentionee._id,
+    })
     return Promise.all([op1, op2])
   }
 

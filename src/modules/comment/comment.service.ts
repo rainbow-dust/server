@@ -4,6 +4,7 @@ import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 
 import { NoteModel } from '../note/note.model'
+import { NoticeService } from '../notice/notice.service'
 import { UserModel } from '../user/user.model'
 import { CommentDto } from './comment.dto'
 import { CommentModel } from './comment.model'
@@ -15,6 +16,7 @@ export class CommentService {
     private readonly commentModel: Model<CommentModel>,
     @InjectModel('NoteModel')
     private readonly noteModel: Model<NoteModel>,
+    private readonly noticeService: NoticeService,
   ) {}
 
   async createComment(comment: CommentDto, user: UserModel) {
@@ -40,6 +42,16 @@ export class CommentService {
       root_comment_id,
       mentionee: mentionee_id,
     })
+
+    await this.noticeService.createNotice({
+      type: 'comment',
+      topic: note._id,
+      description: '评论了你的文章',
+      is_read: false,
+      from: user._id,
+      to: note.author,
+    })
+
     await this.noteModel.findByIdAndUpdate(note_id, {
       $inc: { comment_count: 1 },
     })
