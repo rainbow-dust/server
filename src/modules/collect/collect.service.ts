@@ -12,6 +12,8 @@ export class CollectService {
   constructor(
     @InjectModel('CollectModel')
     private readonly collectModel: Model<CollectModel>,
+    @InjectModel('UserModel')
+    private readonly userModel: Model<UserModel>,
   ) {}
 
   async create(collect: CollectModifyDto, user: UserModel) {
@@ -24,7 +26,9 @@ export class CollectService {
 
   async queryList(collectListQueryDto) {
     const { username, noteId } = collectListQueryDto
-    const _collects = await this.collectModel.find({ creator: username })
+    const _user = await this.userModel.findOne({ username })
+    const _collects = await this.collectModel.find({ creator: _user._id })
+
     // 加入是否收藏了这个文章... 我看了...知乎似乎是任意一个收藏都能查到，小红书就是只有默认收藏夹才直接反应在下边那个小黄星星那里...
     // 但是为了一个小黄星星，...翻这么多东西...值得吗...也许是可以的...
     if (noteId) {

@@ -13,6 +13,7 @@ export class CollectModifyDto {
   desc: string
 
   @IsBoolean({ message: '是否公开' })
+  @IsOptional()
   is_public: boolean
 
   @IsString({ message: '收藏夹id' })
