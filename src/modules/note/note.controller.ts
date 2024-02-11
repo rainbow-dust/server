@@ -120,7 +120,8 @@ export class NoteController {
   async getUserLikes(
     @Param('username') username: string,
     @Body() noteQuery: NoteListQuery,
+    @CurrentUser() user: UserModel,
   ) {
-    return await this.noteService.getUserLikes(username, noteQuery)
+    return await this.noteService.getUserLikes(username, noteQuery, user)
   }
 }

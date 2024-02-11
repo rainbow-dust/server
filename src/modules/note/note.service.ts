@@ -79,7 +79,7 @@ export class NoteService {
       .then((res) => {
         return {
           ...res,
-          is_liked: user?._id ? res.like_user_ids.includes(user._id) : false,
+          is_liked: user?._id ? res.like_user_ids?.includes(user._id) : false,
         }
       })
     return note
@@ -297,25 +297,36 @@ export class NoteService {
       })
   }
 
-  async getUserLikes(username: string, noteQuery: NoteListQuery) {
+  async getUserLikes(
+    username: string,
+    noteQuery: NoteListQuery,
+    user: UserModel,
+  ) {
     const { pageCurrent, pageSize } = noteQuery
 
+    // 从 user 下找到点赞列表
     const _user = await this.userModel
       .findOne({ username })
       .select('like_note_ids')
-    if (!_user) {
-      throw new BadRequestException('用户不存在')
-    }
+    const _likeNoteIds = _user.like_note_ids
+
     const noteList = await this.noteModel
-      .find({ _id: { $in: _user.like_note_ids } })
+      .find({ _id: { $in: _likeNoteIds } })
       .sort({ created_at: -1 })
       .skip((pageCurrent - 1) * pageSize)
       .limit(pageSize)
       .populate('author tags')
       .lean()
-    noteList.forEach((note) => {
-      note['is_liked'] = true
-    })
+
+    if (user?._id) {
+      const _c_user = await this.userModel
+        .findById(user._id)
+        .select('like_note_ids')
+      const _c_likeNoteIds = _c_user.like_note_ids
+      noteList.forEach((i) => {
+        i['is_liked'] = _c_likeNoteIds.includes(i._id)
+      })
+    }
     return noteList
   }
 
