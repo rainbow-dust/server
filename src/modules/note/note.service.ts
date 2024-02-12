@@ -100,7 +100,6 @@ export class NoteService {
     pagination: { pageCurrent?: number; pageSize: number; lastId?: string },
     user?: UserModel,
   ) {
-    console.log(pagination)
     let _preferences = []
     if (user?._id) {
       const _user = await this.userModel
@@ -114,6 +113,7 @@ export class NoteService {
 
     // 从 pageSize * 10 个文章中随机选取 pageSize 个文章, 从新的往旧的选，以 lastId 为分界，如果没有 lastId 则从最新的开始选
     const noteList = await this.noteModel
+      // status: 'normal'
       .find(pagination.lastId ? { _id: { $lt: pagination.lastId } } : {})
       .sort({ created_at: -1 })
       .limit(pagination.pageSize * 10)
@@ -206,6 +206,8 @@ export class NoteService {
             $or: [
               _tagNames?.length > 0 ? { 'tags.name': { $in: _tagNames } } : {},
             ],
+            // 这个查询也想直接同时给后台用，所以...之后传参来决定查不查吧。
+            // status: 'normal'
           },
         },
         {
@@ -356,6 +358,7 @@ export class NoteService {
     }
     const noteList = Promise.all(
       _likeNoteIds
+        // .filter( status
         .slice((pageCurrent - 1) * pageSize, pageCurrent * pageSize)
         .map((i) => {
           return this.noteModel.findById(i).populate('author tags').lean()

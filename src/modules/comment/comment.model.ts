@@ -3,6 +3,8 @@ import mongoose, { Document } from 'mongoose'
 
 import { Prop, Schema } from '@nestjs/mongoose'
 
+import { CollectionStatus } from '~/constants/enum'
+
 import { NoteModel } from '../note/note.model'
 import { UserModel } from '../user/user.model'
 
@@ -68,4 +70,7 @@ export class CommentModel extends Document {
     message: '被回复者，在 child_comment 中@回复某人时有',
   })
   mentionee: UserModel
+
+  @Prop({ default: 'normal' })
+  status: CollectionStatus
 }

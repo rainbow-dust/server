@@ -64,7 +64,7 @@ export class CommentService {
       throw new BadRequestException('文章不存在')
     }
     const rootComments = await this.commentModel
-      .find({ note_id, root_comment_id: null })
+      .find({ note_id, root_comment_id: null, status: 'normal' })
       .populate('author')
       .lean()
 
@@ -84,7 +84,7 @@ export class CommentService {
       throw new BadRequestException('评论不存在')
     }
     const childComment = await this.commentModel
-      .find({ root_comment_id })
+      .find({ root_comment_id, status: 'normal' })
       .populate('author mentionee')
       .lean()
 

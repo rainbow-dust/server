@@ -4,6 +4,8 @@ import mongoose, { Document } from 'mongoose'
 import { Prop, Schema } from '@nestjs/mongoose'
 import { PartialType } from '@nestjs/swagger'
 
+import { CollectionStatus } from '~/constants/enum'
+
 import { TagModel } from '../tag/tag.model'
 import { UserModel } from '../user/user.model'
 
@@ -73,6 +75,9 @@ export class NoteModel extends Document {
 
   @Prop({ default: 0 })
   collect_count: number
+
+  @Prop({ default: 'normal' })
+  status: CollectionStatus
 }
 
 export interface Pic {

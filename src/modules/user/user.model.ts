@@ -3,6 +3,8 @@ import mongoose, { Document } from 'mongoose'
 
 import { Prop, Schema } from '@nestjs/mongoose'
 
+import { CollectionStatus } from '~/constants/enum'
+
 import { CollectModel } from '../collect/collect.model'
 import { NoteModel } from '../note/note.model'
 import { TagModel } from '../tag/tag.model'
@@ -82,6 +84,9 @@ export class UserModel extends Document {
   @Prop()
   @IsArray()
   preferences: Preference[]
+
+  @Prop({ default: 'normal' })
+  status: CollectionStatus
 }
 
 interface Preference {
