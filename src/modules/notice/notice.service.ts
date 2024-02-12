@@ -39,19 +39,18 @@ export class NoticeService {
     return await this.noticeModel.create(notice)
   }
 
-  async getNoticeDetail(user, type) {
-    const list = await this.noticeModel
-      .find({
-        to: user._id,
-        // type,
-      })
-      .sort({ created_at: 1 })
-      .populate('from', 'username avatar')
-    // 自带的排序不起作用?
+  async getNoticeDetail(user, queryListDto) {
+    const { pageCurrent, pageSize, type } = queryListDto
+    const _notices = this.noticeModel
+      .find({ to: user._id })
+      .sort({ created: -1 })
+      .skip((pageCurrent - 1) * pageSize)
+      .limit(pageSize)
+      .populate('from', 'username avatar_url')
 
-    // 存一下结果，然后改已读..这里之后也得搞分页...
-    const ids = list.map((i) => i._id)
-    await this.noticeModel.updateMany({ _id: { $in: ids } }, { is_read: true })
-    return list
+    // ...https://stackoverflow.com/questions/53554434/return-updated-models-in-mongoose-using-updatemany
+    await this.noticeModel.updateMany({ to: user._id }, { is_read: true })
+
+    return _notices
   }
 }

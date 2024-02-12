@@ -20,7 +20,11 @@ export class NoticeController {
 
   @Post('query/list')
   @Auth()
-  async readNoticeList(@CurrentUser() user, @Body() type?: string) {
-    return await this.noticeService.getNoticeDetail(user, type)
+  async readNoticeList(
+    @CurrentUser() user,
+    @Body()
+    queryListDto: { pageCurrent: number; pageSize: number; type?: string },
+  ) {
+    return await this.noticeService.getNoticeDetail(user, queryListDto)
   }
 }
