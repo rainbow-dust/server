@@ -4,6 +4,7 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -43,6 +44,7 @@ export class NoteController {
 
   // 这个接口处理的更多的是有条件的查询
   @Post('/query/list')
+  @HttpCode(200)
   @ApiOperation({ summary: '分页获取博文' })
   async getPaginate(
     @Body() noteQuery: NoteListQuery,
@@ -52,6 +54,7 @@ export class NoteController {
   }
 
   @Post('/query/recommend')
+  @HttpCode(200)
   @ApiOperation({ summary: '获取推荐文章' })
   async getRecommend(
     @CurrentUser() user: UserModel,

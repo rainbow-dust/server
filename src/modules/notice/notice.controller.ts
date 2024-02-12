@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common'
+import { Body, Controller, HttpCode, Post } from '@nestjs/common'
 
 import { Auth } from '~/common/decorator/auth.decorator'
 import { CurrentUser } from '~/common/decorator/current-user.decorator'
@@ -14,12 +14,14 @@ export class NoticeController {
 
   @Post('count')
   @Auth()
+  @HttpCode(200)
   async getNoticeCountByUser(@CurrentUser() user, @Body() type?: string) {
     return await this.noticeService.getNoticeCount(user, type)
   }
 
   @Post('query/list')
   @Auth()
+  @HttpCode(201)
   async readNoticeList(
     @CurrentUser() user,
     @Body()

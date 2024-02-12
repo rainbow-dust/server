@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post } from '@nestjs/common'
+import { Body, Controller, HttpCode, Param, Post } from '@nestjs/common'
 
 import { Auth } from '~/common/decorator/auth.decorator'
 import { CurrentUser } from '~/common/decorator/current-user.decorator'
@@ -25,6 +25,7 @@ export class CollectController {
 
   // 查询收藏夹们 by user...要 auth...?不行
   @Post('query/list')
+  @HttpCode(200)
   async queryCollectList(
     @Body()
     collectListQueryDto: {
@@ -38,6 +39,7 @@ export class CollectController {
   // 查询一个收藏夹的详情
   @Post('query/detail')
   @Auth()
+  @HttpCode(200)
   async queryCollectDetail(
     @Body()
     collectDetailQueryDto: {
