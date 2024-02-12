@@ -49,7 +49,7 @@ export class NoteService {
         .findById(user._id)
         .select('preferences')
       const _preferences = _user.preferences
-      const _newPreferences = _preferences.map((i) => {
+      let _newPreferences = _preferences.map((i) => {
         if (_note.tags.includes(i.tag)) {
           i.score += 1
           return i
@@ -61,6 +61,11 @@ export class NoteService {
           _newPreferences.push({ tag: i, score: 1 })
         }
       })
+      // 每次调用这个，..不止是加，还要均匀的减，并清除掉小于零的
+      _newPreferences.forEach((i) => {
+        i.score -= 0.1
+      })
+      _newPreferences = _newPreferences.filter((i) => i.score > 0)
 
       await this.userModel.updateOne(
         { _id: user._id },
@@ -68,7 +73,13 @@ export class NoteService {
           $set: { preferences: _newPreferences },
         },
       )
-      console.log(_newPreferences)
+      // 查询用户的 preferences
+      const _p = await this.userModel
+        .findById(user._id)
+        .select('preferences')
+        .populate('preferences', 'tag')
+        .lean()
+      console.log(_p)
     }
     await this.noteModel.updateOne({ _id: id }, { $inc: { read: 1 } })
     const note = await this.noteModel
@@ -87,7 +98,7 @@ export class NoteService {
 
   async getRecommend(
     pagination: { pageCurrent?: number; pageSize: number; lastId?: string },
-    user: UserModel,
+    user?: UserModel,
   ) {
     console.log(pagination)
     let _preferences = []
@@ -95,20 +106,51 @@ export class NoteService {
       const _user = await this.userModel
         .findById(user._id)
         .select('preferences')
+      // 只取前 15 个 score 最高的作为依据
       _preferences = _user.preferences
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 15)
     }
 
-    // TODO
-    // 这里要结合，用户喜好，内容相似度，热度等等... 另外也要考虑不要重复推荐，不要推荐已经看过的...至少别单次使用内就重复，不要推荐点过喜欢的...
-    // 现在的想法是，一次会话内，做一个个区间，因为ObjectId 是有序的，所以可以用这个来作为分界。然后每次查询的时候，都是查询这个分界之后的数据，去掉点过喜欢的，然后再根据用户的喜好，内容相似度，热度等等来排序，选出最合适的几篇文章。
-
-    // 这里先简单的返回一些热门的文章
+    // 从 pageSize * 10 个文章中随机选取 pageSize 个文章, 从新的往旧的选，以 lastId 为分界，如果没有 lastId 则从最新的开始选
     const noteList = await this.noteModel
-      .find({ _id: { $ne: pagination.lastId } })
-      .sort({ like_count: -1 })
-      .limit(pagination.pageSize)
+      .find(pagination.lastId ? { _id: { $lt: pagination.lastId } } : {})
+      .sort({ created_at: -1 })
+      .limit(pagination.pageSize * 10)
       .populate('author tags')
       .lean()
+      .then((res) => {
+        // 根据 _preferences 中的 tag, score 与 note 中的 tag 来排序, 匹配到的 tag 又有一个得分，算完之后除以 note tag 的数量
+        const _tobe_notes = res
+          .sort((a, b) => {
+            const _a = a.tags
+            const _b = b.tags
+            const _score_a =
+              _preferences?.reduce((acc, cur) => {
+                if (
+                  _a?.some((i) => i?._id?.toString() === cur.tag.toString())
+                ) {
+                  return acc + cur.score
+                }
+                return acc
+              }, 0) / _a?.length || 0
+            const _score_b =
+              _preferences?.reduce((acc, cur) => {
+                if (
+                  _b?.some((i) => i?._id?.toString() === cur.tag.toString())
+                ) {
+                  return acc + cur.score
+                }
+                return acc
+              }, 0) / _b?.length || 0
+            return _score_b - _score_a
+          })
+          .slice(0, pagination.pageSize)
+        return _tobe_notes
+      })
+
+    // 这里要结合，用户喜好，内容相似度，热度等等... 另外也要考虑不要重复推荐，不要推荐已经看过的...至少别单次使用内就重复，不要推荐点过喜欢的...
+    // 现在的想法是，一次会话内，做一个个区间，因为ObjectId 是有序的，所以可以用这个来作为分界。然后每次查询的时候，都是查询这个分界之后的数据，去掉点过喜欢的，然后再根据用户的喜好，内容相似度，热度等等来排序，选出最合适的几篇文章。
     return noteList
   }
 
