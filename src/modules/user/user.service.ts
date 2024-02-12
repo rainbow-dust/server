@@ -117,6 +117,9 @@ export class UserService {
             },
             createdAt: 1,
             updatedAt: 1,
+            be_liked_count: 1,
+            be_collected_count: 1,
+            note_count: 1,
           },
         },
         {

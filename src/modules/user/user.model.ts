@@ -70,11 +70,14 @@ export class UserModel extends Document {
   @IsArray()
   collects: CollectModel[]
 
-  @Prop()
+  @Prop({ default: 0 })
   be_liked_count: number
 
-  @Prop()
+  @Prop({ default: 0 })
   be_collected_count: number
+
+  @Prop({ default: 0 })
+  note_count: number
 
   @Prop()
   @IsArray()
