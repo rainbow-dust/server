@@ -1,7 +1,7 @@
 // import { IsArray, IsBoolean, IsString } from 'class-validator'
 import { Document } from 'mongoose'
 
-import { Schema } from '@nestjs/mongoose'
+import { Prop, Schema } from '@nestjs/mongoose'
 
 import { NoteModel } from '../note/note.model'
 import { UserModel } from '../user/user.model'
@@ -16,46 +16,31 @@ import { UserModel } from '../user/user.model'
   versionKey: false,
 })
 class StatisticsModel extends Document {
-  base_statistics: {
-    range: string
-    active_user_count: number
-    publish_note_count: number
-    publish_comment_count: number
-    publish_like_count: number
-    publish_click_count: number
+  // 因为很多地方要算差值而没法直接查..所以要记录一些绝对值。
+  @Prop()
+  total_user_count: number
+  @Prop()
+  total_note_count: number
+  @Prop()
+  total_note_like_count: number
+
+  popular_authors: {
+    user: UserModel
+    note_count: number
+    like_count: number
+    click_count: number
   }[]
 
-  popular_author_statistics: {
-    range: string
-    popular_authors: {
-      user: UserModel
-      note_count: number
-      like_count: number
-      click_count: number
-    }[]
+  popular_notes: {
+    note: NoteModel
+    like_count: number
+    collect_count: number
+    click_count: number
   }[]
 
-  popular_tag_statistics: {
-    range: string
-    popular_tags: {
-      tag: string
-      refer_count: number
-    }[]
-  }[]
-
-  popular_note_statistics: {
-    range: string
-    popular_notes: {
-      note: NoteModel
-      like_count: number
-      click_count: number
-    }[]
-  }[]
-
-  // '0:00-2:00', '2:00-4:00', '4:00-6:00', '6:00-8:00', '8:00-10:00', '10:00-12:00', '12:00-14:00', '14:00-16:00', '16:00-18:00', '18:00-20:00', '20:00-22:00', '22:00-24:00'
-  note_publish_statistics: {
-    range: string
-    count: number
+  popular_tags: {
+    tag: string
+    note_count: number
   }[]
 }
 

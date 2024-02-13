@@ -23,4 +23,7 @@ export class TagModel extends Document {
 
   @Prop({ default: 0 })
   heat: number
+
+  @Prop({ default: 0 })
+  reference_count: number
 }

@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+} from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
 
 import { Auth } from '~/common/decorator/auth.decorator'
@@ -59,6 +67,7 @@ export class CommentController {
   /* admin */
   @Post('/admin/query/list')
   @Auth()
+  @HttpCode(200)
   async queryList(@Body() commentQueryListDto) {
     return this.commentService.queryList(commentQueryListDto)
   }

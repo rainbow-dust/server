@@ -96,6 +96,7 @@ export class UserController {
 
   // 下面是管理后台的接口，数据共用，权限不同
   @Post('admin/query/list')
+  @HttpCode(200)
   @ApiOperation({ summary: '获取用户列表' })
   @Auth()
   async queryUserList(@Body() queryUserListDto) {

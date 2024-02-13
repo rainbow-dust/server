@@ -34,6 +34,7 @@ export class LoggingInterceptor implements NestInterceptor {
     const request = this.getRequest(context)
     const content = `${request.method} -> ${request.url}`
     this.logger.debug(`+++ 收到请求：${content}`)
+    // 这里考虑把数据写入到数据库, 也算统计分析的一部分
     const now = +new Date()
     SetMetadata(HTTP_REQUEST_TIME, now)(this.getRequest(context) as any)
 

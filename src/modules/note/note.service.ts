@@ -81,7 +81,7 @@ export class NoteService {
         .lean()
       console.log(_p)
     }
-    await this.noteModel.updateOne({ _id: id }, { $inc: { read: 1 } })
+    await this.noteModel.updateOne({ _id: id }, { $inc: { read_count: 1 } })
     const note = await this.noteModel
       .findById(id)
       .populate('author tags')

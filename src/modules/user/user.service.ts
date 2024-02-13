@@ -225,7 +225,6 @@ export class UserService {
       .skip((pageCurrent - 1) * pageSize)
       .limit(pageSize)
       .sort({ createdAt: -1 })
-      .select(['username', 'avatar_url', 'bio', 'createdAt'])
     return { list, totalCount }
   }
 
