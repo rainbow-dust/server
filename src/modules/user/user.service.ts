@@ -213,6 +213,22 @@ export class UserService {
     return Promise.all([op1, op2])
   }
 
+  async queryUserList(queryUserListDto) {
+    const { pageCurrent = 1, pageSize = 10, username } = queryUserListDto
+    const query = {}
+    if (username) {
+      query['username'] = new RegExp(username)
+    }
+    const totalCount = await this.userModel.count(query)
+    const list = await this.userModel
+      .find(query)
+      .skip((pageCurrent - 1) * pageSize)
+      .limit(pageSize)
+      .sort({ createdAt: -1 })
+      .select(['username', 'avatar_url', 'bio', 'createdAt'])
+    return { list, totalCount }
+  }
+
   get model() {
     return this.userModel
   }

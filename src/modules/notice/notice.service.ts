@@ -53,4 +53,16 @@ export class NoticeService {
 
     return _notices
   }
+
+  /* admin */
+  async queryList(noticeQueryListDto) {
+    const { pageCurrent, pageSize, ...query } = noticeQueryListDto
+    const list = await this.noticeModel
+      .find(query)
+      .limit(pageSize)
+      .skip((pageCurrent - 1) * pageSize)
+      .sort({ heat: -1 })
+    const totalCount = await this.noticeModel.countDocuments(query)
+    return { list, totalCount }
+  }
 }

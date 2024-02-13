@@ -55,4 +55,11 @@ export class CommentController {
   ) {
     return this.commentService.cancelLike(comment_id, user)
   }
+
+  /* admin */
+  @Post('/admin/query/list')
+  @Auth()
+  async queryList(@Body() commentQueryListDto) {
+    return this.commentService.queryList(commentQueryListDto)
+  }
 }

@@ -93,4 +93,12 @@ export class UserController {
   ) {
     return this.userService.cancelFollow(mentionee, user)
   }
+
+  // 下面是管理后台的接口，数据共用，权限不同
+  @Post('admin/query/list')
+  @ApiOperation({ summary: '获取用户列表' })
+  @Auth()
+  async queryUserList(@Body() queryUserListDto) {
+    return await this.userService.queryUserList(queryUserListDto)
+  }
 }

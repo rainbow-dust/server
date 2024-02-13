@@ -51,4 +51,16 @@ export class TagService {
   async queryDetail(name: string) {
     return this.tagModel.findOne({ name })
   }
+
+  /* admin */
+  async queryList(tagQueryListDto) {
+    const { pageCurrent, pageSize, ...query } = tagQueryListDto
+    const list = await this.tagModel
+      .find(query)
+      .limit(pageSize)
+      .skip((pageCurrent - 1) * pageSize)
+      .sort({ heat: -1 })
+    const totalCount = await this.tagModel.countDocuments(query)
+    return { list, totalCount }
+  }
 }

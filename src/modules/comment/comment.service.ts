@@ -138,4 +138,18 @@ export class CommentService {
     newComment['like_count'] -= 1
     return newComment
   }
+
+  /* admin */
+  async queryList(commentQueryListDto) {
+    const { pageCurrent, pageSize, ...query } = commentQueryListDto
+    const list = await this.commentModel
+      .find(query)
+      .limit(pageSize)
+      .skip((pageCurrent - 1) * pageSize)
+      .sort({ createdAt: -1 })
+      .populate('author mentionee')
+      .lean()
+    const totalCount = await this.commentModel.countDocuments(query)
+    return { list, totalCount }
+  }
 }

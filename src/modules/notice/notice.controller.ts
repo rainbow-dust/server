@@ -29,4 +29,12 @@ export class NoticeController {
   ) {
     return await this.noticeService.getNoticeDetail(user, queryListDto)
   }
+
+  /* admin */
+  @Post('admin/query/list')
+  @Auth()
+  @HttpCode(200)
+  async queryList(@Body() queryListDto) {
+    return this.noticeService.queryList(queryListDto)
+  }
 }

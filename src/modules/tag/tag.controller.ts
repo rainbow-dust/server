@@ -1,5 +1,6 @@
 import { Body, Controller, HttpCode, Param, Post, Query } from '@nestjs/common'
 
+import { Auth } from '~/common/decorator/auth.decorator'
 import { ApiName } from '~/common/decorator/openapi.decorator'
 
 import { CreateTagDto } from './tag.dto'
@@ -25,5 +26,13 @@ export class TagController {
   @HttpCode(200)
   async queryDetail(@Param('tagName') name: string) {
     return this.tagService.queryDetail(name)
+  }
+
+  /* admin */
+  @Post('/admin/query/list')
+  @HttpCode(200)
+  @Auth()
+  async queryList(@Body() tagQueryListDto) {
+    return this.tagService.queryList(tagQueryListDto)
   }
 }
