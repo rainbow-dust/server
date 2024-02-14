@@ -1,21 +1,17 @@
-import { IsBoolean, IsOptional, IsString } from 'class-validator'
+import { IsString } from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 
 export class StatisticsDto {
-  @ApiProperty({ required: true })
-  @IsString({ message: '收藏名' })
-  name: string
+  @ApiProperty({ description: '统计动作' })
+  @IsString()
+  action: string
 
-  @ApiProperty({})
-  @IsString({ message: '收藏描述' })
-  @IsOptional()
-  desc: string
+  @ApiProperty({ description: '统计目标' })
+  @IsString()
+  target: string
 
-  @IsBoolean({ message: '是否公开' })
-  is_public: boolean
-
-  @IsString({ message: '收藏夹id' })
-  @IsOptional()
-  _id: string
+  @ApiProperty({ description: '统计值' })
+  @IsString()
+  value: string
 }

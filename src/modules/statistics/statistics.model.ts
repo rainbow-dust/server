@@ -58,19 +58,68 @@ class StatisticsModel extends Document {
   versionKey: false,
 })
 class StatisticActionsModel extends Document {
-  // 这一部分统计... 也许先放放也行。数据结构想好了...但实施要的有点多...。
-  // user: UserModel
-  // start_time: Date
-  // end_time: Date
-  // duration: number
-  // device: string
-  // ip: string
-  // location: string
-  // actions:{
-  //   type: string
-  //   time: Date
-  //   data: { [key: string]: any}
-  // }[]
+  @Prop()
+  patch_id: string
+
+  @Prop()
+  user: UserModel
+
+  @Prop()
+  type: string
+
+  @Prop()
+  action: string
+
+  @Prop()
+  time_stamp: Date
+
+  @Prop()
+  page_url: string
+
+  @Prop()
+  device: string
+
+  @Prop()
+  os: string
+
+  @Prop()
+  browser: string
+
+  @Prop()
+  ip: string
+
+  @Prop()
+  location: string
+
+  @Prop({
+    type: Map,
+  })
+  extra_data_for_event: ExtraData
+  // ...怎么不能写 any...
+}
+
+type ExtraData = ActionClickData | ActionScrollData | RequestData
+
+type ActionClickData = {
+  height: number
+  width: number
+  x: number
+  y: number
+  target: string
+}
+
+type ActionScrollData = {
+  distance: number
+  scrollTop: number
+}
+
+type RequestData = {
+  url: string
+  method: string
+  headers: string
+  body: string
+  cost_time: number
+  status_code: number
 }
 
 export { StatisticsModel, StatisticActionsModel }

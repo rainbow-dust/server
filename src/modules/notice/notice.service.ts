@@ -3,6 +3,7 @@ import { Model } from 'mongoose'
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 
+import { UserModel } from '../user/user.model'
 import { NoticeDto } from './notice.dto'
 import { NoticeModel } from './notice.model'
 
@@ -11,6 +12,8 @@ export class NoticeService {
   constructor(
     @InjectModel('NoticeModel')
     private readonly noticeModel: Model<NoticeModel>,
+    @InjectModel('UserModel')
+    private readonly userModel: Model<UserModel>,
   ) {}
 
   async getNoticeCount(user, type) {
@@ -46,7 +49,8 @@ export class NoticeService {
       .sort({ created: -1 })
       .skip((pageCurrent - 1) * pageSize)
       .limit(pageSize)
-      .populate('from', 'username avatar_url')
+      // 做成如果是系统通知，那么就不需要pop from的信息。...啊...
+      .populate('from', 'username avatar')
 
     // ...https://stackoverflow.com/questions/53554434/return-updated-models-in-mongoose-using-updatemany
     await this.noticeModel.updateMany({ to: user._id }, { is_read: true })
@@ -64,5 +68,16 @@ export class NoticeService {
       .sort({ heat: -1 })
     const totalCount = await this.noticeModel.countDocuments(query)
     return { list, totalCount }
+  }
+
+  async createSysNotice(notice) {
+    const _users = await this.userModel.find()
+    const _notices = _users.map((user) => {
+      return {
+        ...notice,
+        to: user._id,
+      }
+    })
+    return await this.noticeModel.insertMany(_notices)
   }
 }

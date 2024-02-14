@@ -41,11 +41,12 @@ export class NoticeModel extends Document {
     ref: 'UserModel',
     message: '谁触发了通知',
   })
-  from: UserModel | 'system'
+  from: UserModel
+  // ↑↓ 系统通知的话，from ...怎么填呢... 填了字符串，会在 populate 的时候报错...
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,
     ref: 'UserModel',
     message: '通知谁',
   })
-  to: UserModel | 'all'
+  to: UserModel
 }

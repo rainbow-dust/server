@@ -9,7 +9,6 @@ import { NoteModel } from '~/modules/note/note.model'
 import { TagModel } from '~/modules/tag/tag.model'
 import { UserModel } from '~/modules/user/user.model'
 
-import { StatisticsDto } from './statistics.dto'
 // import { StatisticsDto } from './statistics.dto'
 import { StatisticActionsModel, StatisticsModel } from './statistics.model'
 
@@ -34,14 +33,20 @@ export class StatisticsService {
     这里是数据收集
   */
 
-  async collect(user: UserModel, dto: StatisticsDto) {
-    const newStatisticActions = new this.statisticActionsModel({
-      user: user._id,
-      // action: dto.action,
-      // target: dto.target,
-      // value: dto.value,
-    })
-    await newStatisticActions.save()
+  async collectUserAction(dtos) {
+    console.log(dtos)
+    // const newStatisticActions = new this.statisticActionsModel({
+    //   // action: dto.action,
+    //   // target: dto.target,
+    //   // value: dto.value,
+    // })
+    // await newStatisticActions.save()
+  }
+
+  async collectRequest(req) {
+    // 其实这一部分我有想直接在后端做掉的...但是 nest 我可能还是不太会。
+    // 需要将 interceptor, global, modules 几个地方的东西都搞清楚...实在不行就也用前端做好了。
+    console.log(req)
   }
 
   /* 

@@ -1,11 +1,9 @@
 import { Body, Controller, Post } from '@nestjs/common'
 
-import { Auth } from '~/common/decorator/auth.decorator'
-import { CurrentUser } from '~/common/decorator/current-user.decorator'
+// import { Auth } from '~/common/decorator/auth.decorator'
 import { ApiName } from '~/common/decorator/openapi.decorator'
-import { UserModel } from '~/modules/user/user.model'
 
-import { StatisticsDto } from './statistics.dto'
+// import { StatisticsDto } from './statistics.dto'
 import { StatisticsService } from './statistics.service'
 
 @Controller('statistics')
@@ -25,10 +23,10 @@ export class StatisticsController {
     2.3 getGroupedStatistics ByTimeRange ByTag ...
     2.4 getStatisticActions
   */
-  @Auth()
+
   @Post('/collect')
-  async collect(@CurrentUser() user: UserModel, @Body() dto: StatisticsDto) {
-    return this.statisticsService.collect(user, dto)
+  async collect(@Body() dto) {
+    return this.statisticsService.collectUserAction(dto)
   }
 
   // @Auth()
