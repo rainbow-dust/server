@@ -4,10 +4,11 @@ import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Cron } from '@nestjs/schedule'
 
-import { CommentModel } from '../comment/comment.model'
-import { NoteModel } from '../note/note.model'
-import { TagModel } from '../tag/tag.model'
-import { UserModel } from '../user/user.model'
+import { CommentModel } from '~/modules/comment/comment.model'
+import { NoteModel } from '~/modules/note/note.model'
+import { TagModel } from '~/modules/tag/tag.model'
+import { UserModel } from '~/modules/user/user.model'
+
 // import { StatisticsDto } from './statistics.dto'
 import { StatisticActionsModel, StatisticsModel } from './statistics.model'
 
@@ -36,6 +37,44 @@ export class StatisticsService {
 
     想法是,每次统计,数据库里存的的是一个时刻的绝对数据,而需要查询的时候,根据参数,对总量两两求差或者说求导,就能得到这个时间段内的变化量。
   */
+
+  async getDataOverview() {
+    // xAxis: string[];
+    // data: Array<{ name: string; value: number[] }>;
+    // 默认给出最近 12 条的差值
+    // 找到  13 条数据,然后两两求差
+    const data = await this.statisticsModel.find({}).sort({ _id: -1 }).limit(13)
+
+    // x 是 created_at, y 是 total_user_count, total_note_count, total_note_like_count, total_note_read_count
+    // 只找日吧
+    const xAxis = data.map((item) => item.created_at.toISOString().slice(0, 10))
+    const yAxis = data.map((item) => {
+      return [
+        item.total_user_count,
+        item.total_note_count,
+        item.total_note_like_count,
+        item.total_note_read_count,
+      ]
+    })
+
+    const names = [
+      { name: '用户数', key: 'total_user_count' },
+      { name: '文章数', key: 'total_note_count' },
+      { name: '点赞数', key: 'total_note_like_count' },
+      { name: '阅读数', key: 'total_note_read_count' },
+    ]
+
+    return {
+      xAxis,
+      data: names.map((item, index) => {
+        const value = yAxis.map((item) => item[index])
+        return {
+          name: item.name,
+          value,
+        }
+      }),
+    }
+  }
 
   /* 
     至于饼图...也许标签分类可以做出一些

@@ -146,7 +146,7 @@ export class CommentService {
       .find(query)
       .limit(pageSize)
       .skip((pageCurrent - 1) * pageSize)
-      .sort({ createdAt: -1 })
+      .sort({ created_at: -1 })
       .populate('author mentionee')
       .lean()
     const totalCount = await this.commentModel.countDocuments(query)

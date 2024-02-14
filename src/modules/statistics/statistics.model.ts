@@ -23,6 +23,10 @@ class StatisticsModel extends Document {
   total_note_count: number
   @Prop()
   total_note_like_count: number
+  @Prop()
+  total_note_read_count: number
+  @Prop()
+  created_at: Date
 
   popular_authors: {
     user: UserModel

@@ -1,12 +1,13 @@
-import { Controller } from '@nestjs/common'
+import { Controller, Post } from '@nestjs/common'
 
-// import { Auth } from '~/common/decorator/auth.decorator'
 // import { CurrentUser } from '~/common/decorator/current-user.decorator'
 import { ApiName } from '~/common/decorator/openapi.decorator'
 
 // import { UserModel } from '../user/user.model'
 // import { StatisticsDto } from './statistics.dto'
 import { StatisticsService } from './statistics.service'
+
+// import { Auth } from '~/common/decorator/auth.decorator'
 
 @Controller('statistics')
 @ApiName
@@ -35,4 +36,10 @@ export class StatisticsController {
   // ) {
   //   return this.statisticsService.collect(user, dto)
   // }
+
+  // @Auth()
+  @Post('/data-overview')
+  async getDataOverview() {
+    return await this.statisticsService.getDataOverview()
+  }
 }
