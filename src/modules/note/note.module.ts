@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common'
 
-import { NoticeService } from '../notice/notice.service'
+import { NoticeService } from '~/modules/notice/notice.service'
+
 import { NoteController } from './note.controller'
 import { NoteService } from './note.service'
 

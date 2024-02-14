@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common'
 
-import { AuthModule } from '../auth/auth.module'
-import { NoticeService } from '../notice/notice.service'
+import { AuthModule } from '~/modules/auth/auth.module'
+import { NoticeService } from '~/modules/notice/notice.service'
+
 import { UserController } from './user.controller'
 import { UserService } from './user.service'
 

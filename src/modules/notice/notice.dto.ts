@@ -1,6 +1,6 @@
-import { CommentModel } from '../comment/comment.model'
-import { NoteModel } from '../note/note.model'
-import { UserModel } from '../user/user.model'
+import { CommentModel } from '~/modules/comment/comment.model'
+import { NoteModel } from '~/modules/note/note.model'
+import { UserModel } from '~/modules/user/user.model'
 
 export class NoticeDto {
   type: 'like' | 'comment' | 'follow' | 'reply' | 'collect'

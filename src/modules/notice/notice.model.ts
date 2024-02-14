@@ -3,9 +3,9 @@ import mongoose, { Document } from 'mongoose'
 
 import { Prop, Schema } from '@nestjs/mongoose'
 
-import { CommentModel } from '../comment/comment.model'
-import { NoteModel } from '../note/note.model'
-import { UserModel } from '../user/user.model'
+import { CommentModel } from '~/modules/comment/comment.model'
+import { NoteModel } from '~/modules/note/note.model'
+import { UserModel } from '~/modules/user/user.model'
 
 @Schema({
   collection: 'notices',

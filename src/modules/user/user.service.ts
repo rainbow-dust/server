@@ -5,9 +5,9 @@ import { nanoid } from 'nanoid'
 import { ForbiddenException, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 
+import { NoticeService } from '~/modules/notice/notice.service'
 import { UserModel } from '~/modules/user/user.model'
 
-import { NoticeService } from '../notice/notice.service'
 import { UserDetailDto, UserDto } from './user.dto'
 
 @Injectable()

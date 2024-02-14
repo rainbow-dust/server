@@ -12,8 +12,8 @@ import { ApiOperation } from '@nestjs/swagger'
 import { Auth } from '~/common/decorator/auth.decorator'
 import { CurrentUser } from '~/common/decorator/current-user.decorator'
 import { ApiName } from '~/common/decorator/openapi.decorator'
+import { UserModel } from '~/modules/user/user.model'
 
-import { UserModel } from '../user/user.model'
 import { CommentDto } from './comment.dto'
 import { CommentService } from './comment.service'
 

@@ -6,7 +6,8 @@ import {
   IsUrl,
 } from 'class-validator'
 
-import { paginateDto } from '../../shared/dto/pager.dto'
+import { paginateDto } from '~/shared/dto/pager.dto'
+
 import { Pic } from './note.model'
 
 export enum Sort {

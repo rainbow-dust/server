@@ -5,8 +5,8 @@ import { JwtService } from '@nestjs/jwt'
 import { InjectModel } from '@nestjs/mongoose'
 
 import { AuthFailedException } from '~/common/exceptions/auth-failed.exception'
+import { UserModel } from '~/modules/user/user.model'
 
-import { UserModel } from '../user/user.model'
 import { JwtPayload } from './interfaces/jwt-payload.interface'
 
 @Injectable()

@@ -5,9 +5,8 @@ import { Prop, Schema } from '@nestjs/mongoose'
 import { PartialType } from '@nestjs/swagger'
 
 import { CollectionStatus } from '~/constants/enum'
-
-import { TagModel } from '../tag/tag.model'
-import { UserModel } from '../user/user.model'
+import { TagModel } from '~/modules/tag/tag.model'
+import { UserModel } from '~/modules/user/user.model'
 
 @Schema({
   collection: 'notes',

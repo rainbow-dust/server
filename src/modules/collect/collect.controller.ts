@@ -3,8 +3,8 @@ import { Body, Controller, HttpCode, Param, Post } from '@nestjs/common'
 import { Auth } from '~/common/decorator/auth.decorator'
 import { CurrentUser } from '~/common/decorator/current-user.decorator'
 import { ApiName } from '~/common/decorator/openapi.decorator'
+import { UserModel } from '~/modules/user/user.model'
 
-import { UserModel } from '../user/user.model'
 import { CollectModifyDto } from './collect.dto'
 import { CollectService } from './collect.service'
 

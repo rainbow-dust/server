@@ -4,9 +4,8 @@ import mongoose, { Document } from 'mongoose'
 import { Prop, Schema } from '@nestjs/mongoose'
 
 import { CollectionStatus } from '~/constants/enum'
-
-import { NoteModel } from '../note/note.model'
-import { UserModel } from '../user/user.model'
+import { NoteModel } from '~/modules/note/note.model'
+import { UserModel } from '~/modules/user/user.model'
 
 @Schema({
   collection: 'comments',

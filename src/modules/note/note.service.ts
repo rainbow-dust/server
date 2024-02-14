@@ -7,9 +7,10 @@ import {
 } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 
-import { NoticeService } from '../notice/notice.service'
-import { TagModel } from '../tag/tag.model'
-import { UserModel } from '../user/user.model'
+import { NoticeService } from '~/modules/notice/notice.service'
+import { TagModel } from '~/modules/tag/tag.model'
+import { UserModel } from '~/modules/user/user.model'
+
 import { NoteDto, NoteListQuery, QueryType } from './note.dto'
 import { NoteModel, PartialNoteModel } from './note.model'
 

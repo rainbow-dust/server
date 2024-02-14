@@ -3,9 +3,10 @@ import { Model } from 'mongoose'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 
-import { NoteModel } from '../note/note.model'
-import { NoticeService } from '../notice/notice.service'
-import { UserModel } from '../user/user.model'
+import { NoteModel } from '~/modules/note/note.model'
+import { NoticeService } from '~/modules/notice/notice.service'
+import { UserModel } from '~/modules/user/user.model'
+
 import { CommentDto } from './comment.dto'
 import { CommentModel } from './comment.model'
 

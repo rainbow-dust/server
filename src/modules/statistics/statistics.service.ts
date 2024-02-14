@@ -9,6 +9,7 @@ import { NoteModel } from '~/modules/note/note.model'
 import { TagModel } from '~/modules/tag/tag.model'
 import { UserModel } from '~/modules/user/user.model'
 
+import { StatisticsDto } from './statistics.dto'
 // import { StatisticsDto } from './statistics.dto'
 import { StatisticActionsModel, StatisticsModel } from './statistics.model'
 
@@ -30,6 +31,22 @@ export class StatisticsService {
   ) {}
 
   /* 
+    这里是数据收集
+  */
+
+  async collect(user: UserModel, dto: StatisticsDto) {
+    const newStatisticActions = new this.statisticActionsModel({
+      user: user._id,
+      // action: dto.action,
+      // target: dto.target,
+      // value: dto.value,
+    })
+    await newStatisticActions.save()
+  }
+
+  /* 
+    这里是数据查询
+    
     折线图,需要的数据结构通常如下:
     xAxis: time ranges
     yAxis: detail data
@@ -83,35 +100,33 @@ export class StatisticsService {
     目前似乎...也就这些了
   */
 
-  @Cron('5 * * * * *')
-  updateBasicUserStatistics() {
-    // 先查到所有的用户
-    this.userModel.find({}, '_id').then((users) => {
-      users.forEach((user) => {
-        // 查到所有的文章
-        this.noteModel
-          .find({ author: user._id }, '_id like_count collect_count')
-          .then((notes) => {
-            // 查文章的 like 和 collect 的 count
-            const likeCount = notes.reduce((prev, note) => {
-              return prev + (note.like_count || 0)
-            }, 0)
-            const collectCount = notes.reduce((prev, note) => {
-              return prev + (note.collect_count || 0)
-            }, 0)
+  /* 
+    下面是一些定时任务
+  */
 
-            // 更新用户的统计数据
-            this.userModel.updateOne(
-              { _id: user._id },
-              {
-                be_liked_count: likeCount,
-                be_collected_count: collectCount,
-                note_count: notes.length,
-              },
-            )
-          })
-      })
-    })
+  @Cron('5 * * * * *')
+  async updateBasicUserStatistics() {
+    const users = await this.userModel.find({}, '_id')
+    for (const user of users) {
+      const notes = await this.noteModel.find(
+        {},
+        '_id like_count collect_count',
+      )
+      const likeCount = notes.reduce((prev, note) => {
+        return prev + (note.like_count || 0)
+      }, 0)
+      const collectCount = notes.reduce((prev, note) => {
+        return prev + (note.collect_count || 0)
+      }, 0)
+      await this.userModel.updateOne(
+        { _id: user._id },
+        {
+          be_liked_count: likeCount,
+          be_collected_count: collectCount,
+          note_count: notes.length,
+        },
+      )
+    }
   }
 
   @Cron('5 * * * * *')
