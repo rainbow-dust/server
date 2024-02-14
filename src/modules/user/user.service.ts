@@ -20,10 +20,6 @@ export class UserService {
   async createUser(user: UserDto) {
     const hasMaster = !!(await this.userModel.count())
 
-    if (!hasMaster) {
-      // 如果是第一个用户，那么就是主人，会有一个特殊权限，但...也无所谓
-    }
-
     // 检测是否有重名
     const hasUser = await this.userModel.findOne({ username: user.username })
     if (hasUser) {
@@ -34,10 +30,10 @@ export class UserService {
 
     const res = await this.userModel.create({
       ...user,
-      admin: !hasMaster,
+      role: hasMaster ? 'user' : 'admin',
       authCode,
     })
-    return { username: res.username, authCode: res.authCode, admin: res.admin }
+    return { username: res.username, authCode: res.authCode, role: res.role }
   }
 
   async login(username: string, password: string) {
@@ -120,6 +116,7 @@ export class UserService {
             be_liked_count: 1,
             be_collected_count: 1,
             note_count: 1,
+            role: 1,
           },
         },
         {
@@ -213,6 +210,7 @@ export class UserService {
     return Promise.all([op1, op2])
   }
 
+  /* admin */
   async queryUserList(queryUserListDto) {
     const { pageCurrent = 1, pageSize = 10, username } = queryUserListDto
     const query = {}
@@ -226,6 +224,17 @@ export class UserService {
       .limit(pageSize)
       .sort({ createdAt: -1 })
     return { list, totalCount }
+  }
+
+  async blockUser(id: string) {
+    return this.userModel.updateOne({ _id: id }, { status: 'blocked' })
+  }
+  async unblockUser(id: string) {
+    return this.userModel.updateOne({ _id: id }, { status: 'normal' })
+  }
+
+  async changeRole(id: string, role: string) {
+    return this.userModel.updateOne({ _id: id }, { role })
   }
 
   get model() {

@@ -72,7 +72,7 @@ export class NoteController {
   @Auth()
   async deleteNote(@Param('id') id: string, @CurrentUser() user: UserModel) {
     const _note = await this.noteService.model.findById(id)
-    if (_note?.author !== user._id && !user.admin) {
+    if (_note?.author !== user._id && !(user.role === 'admin')) {
       throw new ForbiddenException('没有权限删除')
     }
     return await this.noteService.deleteNote(id)
@@ -86,7 +86,7 @@ export class NoteController {
     @CurrentUser() user: UserModel,
   ) {
     const _note = await this.noteService.model.findById(params.id)
-    if (_note?.author !== user._id && !user.admin) {
+    if (_note?.author !== user._id && !(user.role === 'admin')) {
       throw new ForbiddenException('没有权限修改')
     }
     return await this.noteService.updateById(params.id, body)
@@ -100,7 +100,7 @@ export class NoteController {
     @CurrentUser() user: UserModel,
   ) {
     const _note = await this.noteService.model.findById(params.id)
-    if (_note?.author !== user._id && !user.admin) {
+    if (_note?.author !== user._id && !(user.role === 'admin')) {
       throw new ForbiddenException('没有权限修改')
     }
     return await this.noteService.updateById(params.id, body)

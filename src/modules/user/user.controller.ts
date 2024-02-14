@@ -102,4 +102,29 @@ export class UserController {
   async queryUserList(@Body() queryUserListDto) {
     return await this.userService.queryUserList(queryUserListDto)
   }
+
+  @Post('admin/block/:id')
+  @HttpCode(200)
+  @ApiOperation({ summary: '封禁用户' })
+  @Auth()
+  async blockUser(@Param('id') id: string) {
+    return await this.userService.blockUser(id)
+  }
+
+  @Post('admin/unblock/:id')
+  @HttpCode(200)
+  @ApiOperation({ summary: '解封用户' })
+  @Auth()
+  async unblockUser(@Param('id') id: string) {
+    return await this.userService.unblockUser(id)
+  }
+
+  // 更改用户角色
+  @Post('admin/role/:id')
+  @HttpCode(200)
+  @ApiOperation({ summary: '更改用户角色' })
+  @Auth()
+  async changeRole(@Param('id') id: string, @Body() role) {
+    return await this.userService.changeRole(id, role.role)
+  }
 }

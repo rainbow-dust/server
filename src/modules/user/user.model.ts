@@ -35,8 +35,8 @@ export class UserModel extends Document {
   @Prop()
   bio: string
 
-  @Prop({ select: false })
-  admin: boolean
+  @Prop({ default: 'user' })
+  role: 'admin' | 'user'
 
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,
