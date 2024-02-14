@@ -37,4 +37,12 @@ export class NoticeController {
   async queryList(@Body() queryListDto) {
     return this.noticeService.queryList(queryListDto)
   }
+
+  // 系统通知... from 为系统，to 为所有人，该是又要改查询了
+  @Post('admin/add')
+  @Auth()
+  @HttpCode(201)
+  async addSystemNotice(@Body() notice) {
+    return this.noticeService.createNotice(notice)
+  }
 }

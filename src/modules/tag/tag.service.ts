@@ -63,4 +63,13 @@ export class TagService {
     const totalCount = await this.tagModel.countDocuments(query)
     return { list, totalCount }
   }
+
+  async edit(name: string, tag: CreateTagDto) {
+    return this.tagModel.updateOne(
+      {
+        name,
+      },
+      tag,
+    )
+  }
 }

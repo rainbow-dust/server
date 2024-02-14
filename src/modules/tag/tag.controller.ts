@@ -35,4 +35,11 @@ export class TagController {
   async queryList(@Body() tagQueryListDto) {
     return this.tagService.queryList(tagQueryListDto)
   }
+
+  @Post('/admin/edit/:name')
+  @HttpCode(200)
+  @Auth()
+  async edit(@Param('name') name: string, @Body() tag: CreateTagDto) {
+    return this.tagService.edit(name, tag)
+  }
 }

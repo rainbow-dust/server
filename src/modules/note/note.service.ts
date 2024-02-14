@@ -378,6 +378,15 @@ export class NoteService {
     return noteList
   }
 
+  /* admin */
+  async block(id: string) {
+    return this.noteModel.updateOne({ _id: id }, { status: 'blocked' })
+  }
+
+  async unblock(id: string) {
+    return this.noteModel.updateOne({ _id: id }, { status: 'normal' })
+  }
+
   get model() {
     return this.noteModel
   }

@@ -153,4 +153,16 @@ export class CommentService {
     const totalCount = await this.commentModel.countDocuments(query)
     return { list, totalCount }
   }
+
+  async block(id: string) {
+    return this.commentModel.findByIdAndUpdate(id, {
+      status: 'block',
+    })
+  }
+
+  async unblock(id: string) {
+    return this.commentModel.findByIdAndUpdate(id, {
+      status: 'normal',
+    })
+  }
 }

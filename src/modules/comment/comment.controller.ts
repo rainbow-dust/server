@@ -71,4 +71,18 @@ export class CommentController {
   async queryList(@Body() commentQueryListDto) {
     return this.commentService.queryList(commentQueryListDto)
   }
+
+  @Post('/admin/block/:id')
+  @Auth()
+  @HttpCode(200)
+  async block(@Param('id') id: string) {
+    return this.commentService.block(id)
+  }
+
+  @Post('/admin/unblock/:id')
+  @Auth()
+  @HttpCode(200)
+  async unblock(@Param('id') id: string) {
+    return this.commentService.unblock(id)
+  }
 }

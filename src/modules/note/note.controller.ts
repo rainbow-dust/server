@@ -127,4 +127,19 @@ export class NoteController {
   ) {
     return await this.noteService.getUserLikes(username, noteQuery, user)
   }
+
+  /* admin */
+  @Post('/admin/block/:id')
+  @HttpCode(200)
+  @Auth()
+  async block(@Param('id') id: string) {
+    return this.noteService.block(id)
+  }
+
+  @Post('/admin/unblock/:id')
+  @HttpCode(200)
+  @Auth()
+  async unblock(@Param('id') id: string) {
+    return this.noteService.unblock(id)
+  }
 }

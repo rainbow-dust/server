@@ -41,11 +41,11 @@ export class NoticeModel extends Document {
     ref: 'UserModel',
     message: '谁触发了通知',
   })
-  from: UserModel
+  from: UserModel | 'system'
   @Prop({
     type: () => mongoose.Schema.Types.ObjectId,
     ref: 'UserModel',
     message: '通知谁',
   })
-  to: UserModel
+  to: UserModel | 'all'
 }
