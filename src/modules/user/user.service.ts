@@ -99,6 +99,7 @@ export class UserService {
             username: 1,
             nickname: 1,
             avatar_url: 1,
+            cover_url: 1,
             bio: 1,
             followers: {
               username: 1,

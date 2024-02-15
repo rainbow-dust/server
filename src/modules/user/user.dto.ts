@@ -20,6 +20,10 @@ export class UserDto {
   @IsString({ message: '头像' })
   @IsOptional()
   avatar_url: string
+
+  @IsString({ message: '封面' })
+  @IsOptional()
+  cover_url: string
 }
 
 export class UserDetailDto extends UserDto {

@@ -33,6 +33,9 @@ export class UserModel extends Document {
   avatar_url: string
 
   @Prop()
+  cover_url: string
+
+  @Prop()
   bio: string
 
   @Prop({ default: 'user' })

@@ -114,7 +114,7 @@ export class StatisticsService {
     const users = await this.userModel.find({}, '_id')
     for (const user of users) {
       const notes = await this.noteModel.find(
-        {},
+        { author: user._id },
         '_id like_count collect_count',
       )
       const likeCount = notes.reduce((prev, note) => {
