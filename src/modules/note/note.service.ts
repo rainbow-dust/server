@@ -352,6 +352,7 @@ export class NoteService {
       .findOne({ username })
       .select('like_note_ids')
     const _likeNoteIds = _user.like_note_ids
+    if (!_likeNoteIds || _likeNoteIds.length === 0) return []
 
     let _c_user
     if (user?._id) {

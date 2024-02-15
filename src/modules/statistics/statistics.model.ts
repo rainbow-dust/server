@@ -65,10 +65,16 @@ class StatisticActionsModel extends Document {
   user: UserModel
 
   @Prop()
-  type: string
+  device: string
 
-  @Prop()
-  action: string
+  /* ip location 什么的浏览器做了限制 js 不能访问，通常是由服务端接收请求后再发给前端... 所以先不做了 */
+  // @Prop()
+  // ip: string
+
+  // @Prop()
+  // location: string
+
+  /* 这条注释以上的信息可以确定是一个批次内不会变动的。 */
 
   @Prop()
   time_stamp: Date
@@ -76,26 +82,22 @@ class StatisticActionsModel extends Document {
   @Prop()
   page_url: string
 
-  @Prop()
-  device: string
-
-  @Prop()
-  os: string
-
-  @Prop()
-  browser: string
-
-  @Prop()
-  ip: string
-
-  @Prop()
-  location: string
+  @Prop({
+    message: '统计类型， request 还是 action',
+  })
+  type: string
 
   @Prop({
-    type: Map,
+    message: '统计动作就是 action 分类，有 click scroll 等',
+  })
+  action?: string
+
+  @Prop({
+    message:
+      '额外数据，具体类型依据 type 和 action 而定... 而这里有可能才是分析重点',
+    type: Object,
   })
   extra_data_for_event: ExtraData
-  // ...怎么不能写 any...
 }
 
 type ExtraData = ActionClickData | ActionScrollData | RequestData
@@ -110,7 +112,7 @@ type ActionClickData = {
 
 type ActionScrollData = {
   distance: number
-  scrollTop: number
+  scroll_top: number
 }
 
 type RequestData = {

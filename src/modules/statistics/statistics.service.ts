@@ -34,13 +34,21 @@ export class StatisticsService {
   */
 
   async collectUserAction(dtos) {
-    console.log(dtos)
-    // const newStatisticActions = new this.statisticActionsModel({
-    //   // action: dto.action,
-    //   // target: dto.target,
-    //   // value: dto.value,
-    // })
-    // await newStatisticActions.save()
+    const { baseInfo, events } = dtos
+    const _user = await this.userModel.findOne({ username: baseInfo.username })
+    const _statisticActions = events.map((item) => {
+      return {
+        patch_id: baseInfo.patch_id,
+        user: _user._id,
+        device: baseInfo.device,
+        // time_stamp: new Date(item.time_stamp),
+        page_url: item.page_url,
+        type: item.type,
+        action: item.action,
+        data: item.data,
+      }
+    })
+    await this.statisticActionsModel.insertMany(_statisticActions)
   }
 
   async collectRequest(req) {
@@ -134,7 +142,8 @@ export class StatisticsService {
     }
   }
 
-  @Cron('5 * * * * *')
+  // @Cron('5 * * * * *')
+  @Cron('0 0 */2 * * *')
   async updateTagHeat() {
     const tags = await this.tagModel.find({}, '_id')
     for (const tag of tags) {
@@ -163,7 +172,7 @@ export class StatisticsService {
     }
   }
 
-  @Cron('5 * * * * *')
+  @Cron('0 0 */2 * * *')
   async statisticsUpdate() {
     // 不对，这样做的话..是不是要存的只是切片而已。？
     // 查询的时候，是不是要把所有的切片都查出来，然后再算差值？
