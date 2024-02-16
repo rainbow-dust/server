@@ -61,7 +61,11 @@ class StatisticActionsModel extends Document {
   @Prop()
   patch_id: string
 
-  @Prop()
+  @Prop({
+    message: '用户信息',
+    type: String,
+    index: true,
+  })
   user: UserModel
 
   @Prop()
@@ -77,13 +81,14 @@ class StatisticActionsModel extends Document {
   /* 这条注释以上的信息可以确定是一个批次内不会变动的。 */
 
   @Prop()
-  time_stamp: Date
+  time_stamp: string
 
   @Prop()
   page_url: string
 
   @Prop({
     message: '统计类型， request 还是 action',
+    index: true,
   })
   type: string
 

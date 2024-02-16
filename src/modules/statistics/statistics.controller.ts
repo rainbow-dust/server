@@ -34,4 +34,10 @@ export class StatisticsController {
   async getDataOverview() {
     return await this.statisticsService.getDataOverview()
   }
+
+  // 查询日志...
+  @Post('/statistic-actions/query/list')
+  async getStatisticActions(@Body() dto) {
+    return await this.statisticsService.getStatisticActions(dto)
+  }
 }

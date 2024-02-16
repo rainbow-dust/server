@@ -39,13 +39,13 @@ export class StatisticsService {
     const _statisticActions = events.map((item) => {
       return {
         patch_id: baseInfo.patch_id,
-        user: _user._id,
+        user: _user ? _user._id : baseInfo.username,
         device: baseInfo.device,
-        // time_stamp: new Date(item.time_stamp),
+        time_stamp: item.time_stamp,
         page_url: item.page_url,
         type: item.type,
         action: item.action,
-        data: item.data,
+        extra_data_for_event: item.data,
       }
     })
     await this.statisticActionsModel.insertMany(_statisticActions)
@@ -103,6 +103,20 @@ export class StatisticsService {
           value,
         }
       }),
+    }
+  }
+
+  async getStatisticActions(dto) {
+    const { pageCurrent, pageSize, ...query } = dto
+    const totalCount = await this.statisticActionsModel.countDocuments(query)
+    const list = await this.statisticActionsModel
+      .find(query)
+      .sort({ _id: -1 })
+      .skip((pageCurrent - 1) * pageSize)
+      .limit(pageSize)
+    return {
+      list,
+      totalCount,
     }
   }
 

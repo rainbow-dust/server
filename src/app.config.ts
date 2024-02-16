@@ -4,7 +4,13 @@ export const PORT = 9527
 export const API_VERSION = 1
 
 export const CROSS_DOMAIN = {
-  allowedOrigins: ['huamurui.me', 'localhost', '127.0.0.1', '.*dev'],
+  allowedOrigins: [
+    'huamurui.me',
+    'localhost',
+    '127.0.0.1',
+    '.*dev',
+    '192.168.*',
+  ],
 }
 
 export const MONGO_DB = {
