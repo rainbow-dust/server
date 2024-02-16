@@ -34,6 +34,12 @@ export class StatisticsController {
   async getDataOverview() {
     return await this.statisticsService.getDataOverview()
   }
+
+  @Post('/period-grouped-notes')
+  async getPeriodGroupedNotes() {
+    return await this.statisticsService.getPeriodGroupedNotes()
+  }
+
   @Post('/popular-author/list')
   async getPopularAuthor() {
     return await this.statisticsService.getPopularAuthor()

@@ -106,6 +106,43 @@ export class StatisticsService {
     }
   }
 
+  async getPeriodGroupedNotes() {
+    // 查询所有文章，按时间分组，
+    const xAxis = [
+      '0:00-2:00',
+      '2:00-4:00',
+      '4:00-6:00',
+      '6:00-8:00',
+      '8:00-10:00',
+      '10:00-12:00',
+      '12:00-14:00',
+      '14:00-16:00',
+      '16:00-18:00',
+      '18:00-20:00',
+      '20:00-22:00',
+      '22:00-24:00',
+    ]
+    const notes = await this.noteModel.find({}, 'created_at')
+    const grouped_count_numbers = new Array(12).fill(0)
+    notes.forEach((note: any) => {
+      const hour = note.created_at.getHours()
+      const index = Math.floor(hour / 2)
+      grouped_count_numbers[index]++
+    })
+
+    const names = ['全部']
+    const data = names.map((name) => {
+      return {
+        name,
+        value: grouped_count_numbers,
+      }
+    })
+    return {
+      xAxis,
+      data,
+    }
+  }
+
   async getStatisticActions(dto) {
     const { pageCurrent, pageSize, ...query } = dto
     const totalCount = await this.statisticActionsModel.countDocuments(query)
