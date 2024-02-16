@@ -27,7 +27,10 @@ class StatisticsModel extends Document {
   total_note_read_count: number
   @Prop()
   created_at: Date
+  @Prop()
+  total_request_count: number
 
+  @Prop()
   popular_authors: {
     user: UserModel
     note_count: number
@@ -35,6 +38,7 @@ class StatisticsModel extends Document {
     click_count: number
   }[]
 
+  @Prop()
   popular_notes: {
     note: NoteModel
     like_count: number
@@ -42,9 +46,17 @@ class StatisticsModel extends Document {
     click_count: number
   }[]
 
+  @Prop()
   popular_tags: {
     tag: string
     note_count: number
+  }[]
+
+  @Prop()
+  popular_requests: {
+    url: string
+    method: string
+    count: number
   }[]
 }
 
@@ -102,7 +114,7 @@ class StatisticActionsModel extends Document {
       '额外数据，具体类型依据 type 和 action 而定... 而这里有可能才是分析重点',
     type: Object,
   })
-  extra_data_for_event: ExtraData
+  extra_data_for_event: ExtraData | any
 }
 
 type ExtraData = ActionClickData | ActionScrollData | RequestData

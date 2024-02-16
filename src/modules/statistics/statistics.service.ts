@@ -120,6 +120,64 @@ export class StatisticsService {
     }
   }
 
+  async getPopularAuthor() {
+    const data = await this.statisticsModel
+      .find({})
+      .sort({ _id: -1 })
+      .limit(1)
+      .populate('popular_authors', 'user')
+    //  populate 没效果... 可能我还是对这些工具期待太多了吧...
+    const _user_ids = data[0].popular_authors.map((item) => item.user)
+    const _users = await this.userModel
+      .find(
+        { _id: { $in: _user_ids } },
+        'username be_liked_count note_count read_count',
+      )
+      .then((res) => {
+        return res.map((item) => {
+          return {
+            _id: item._id,
+            user: item.username,
+            like_count: item.be_liked_count,
+            note_count: item.note_count,
+          }
+        })
+      })
+
+    const __users = data[0].popular_authors.map((item) => {
+      return {
+        user: _users.find(
+          (user) => user._id.toString() === item.user.toString(),
+        ),
+        like_count: item.like_count,
+        note_count: item.note_count,
+      }
+    })
+
+    return { list: __users }
+  }
+
+  async getPopularNote() {
+    const data = await this.statisticsModel.find({}).sort({ _id: -1 }).limit(1)
+    const _note_ids = data[0].popular_notes.map((item) => item.note)
+    const _notes = await this.noteModel.find({ _id: { $in: _note_ids } })
+
+    const __notes = data[0].popular_notes.map((item) => {
+      return {
+        note: _notes.find(
+          (note) => note._id.toString() === item.note.toString(),
+        ),
+        like_count: item.like_count,
+        collect_count: item.collect_count,
+      }
+    })
+    return { list: __notes }
+  }
+
+  async getPopularTag() {
+    const data = await this.statisticsModel.find({}).sort({ _id: -1 }).limit(1)
+    return { list: data[0].popular_tags }
+  }
   /* 
     至于饼图...也许标签分类可以做出一些
     如果能拿到 ip 地址,也许还能做出一些地域分布图
@@ -131,7 +189,7 @@ export class StatisticsService {
     下面是一些定时任务
   */
 
-  @Cron('5 * * * * *')
+  @Cron('0 0 */2 * * *')
   async updateBasicUserStatistics() {
     const users = await this.userModel.find({}, '_id')
     for (const user of users) {
@@ -186,6 +244,7 @@ export class StatisticsService {
     }
   }
 
+  // @Cron('5 * * * * *')
   @Cron('0 0 */2 * * *')
   async statisticsUpdate() {
     // 不对，这样做的话..是不是要存的只是切片而已。？
@@ -205,18 +264,76 @@ export class StatisticsService {
       .then((res) => {
         return res[0]
       })
+
+    const _requests = await this.statisticActionsModel.find({ type: 'request' })
+    // 通过 extra_data_for_event.url 分组
+    const _requests_grouped = _requests.reduce((prev, item) => {
+      if (prev[item.extra_data_for_event.url]) {
+        prev[item.extra_data_for_event.url]++
+      } else {
+        prev[item.extra_data_for_event.url] = 1
+      }
+      return prev
+    }, {})
+    console.log(_requests_grouped)
+    // 嗯...常理来说 popular_xxx 应该是计算一段时间内的增量来搞的，记录的数据也应该是一段时间内的...但是...
+    // 这边的代码想搞真实有效的数据还是太费劲也太费时间了...
+    const popular_requests = Object.keys(_requests_grouped).map((key) => {
+      return {
+        url: key,
+        count: _requests_grouped[key],
+      }
+    })
+    const popular_notes = await this.noteModel
+      .find({}, '_id like_count read_count collect_count')
+      .sort({ like_count: -1 })
+      .limit(10)
+      .then((res) => {
+        return res.map((item) => {
+          return {
+            note: item._id,
+            like_count: item.like_count,
+            read_count: item.read_count,
+            collect_count: item.collect_count,
+          }
+        })
+      })
+    const popular_authors = await this.userModel
+      .find({}, '_id be_liked_count note_count')
+      .sort({ be_liked_count: -1 })
+      .limit(10)
+      .then((res) => {
+        return res.map((item) => {
+          return {
+            user: item._id,
+            like_count: item.be_liked_count,
+            note_count: item.note_count,
+          }
+        })
+      })
+    const popular_tags = await this.tagModel
+      .find({}, '_id heat reference_count')
+      .sort({ heat: -1 })
+      .limit(10)
+      .then((res) => {
+        return res.map((item) => {
+          return {
+            tag: item._id,
+            heat: item.heat,
+            reference_count: item.reference_count,
+          }
+        })
+      })
     const newStatistics = new this.statisticsModel({
-      // 有些...挺大的问题。现在这样怎么把热门作者，热门文章，热门标签统计出来？
-      // 点赞没有单独建表...许多数据是没有的...
-      // 我现在又想到一个,点赞表是点赞表,文章里存的是文章里存的. 这 tmd 是两回事... 是可以全都要的.
-
-      // 不过捏数据这块倒也不难受,点赞信息没了,可文章发布可是有时间的,按发布的时间晒一遍派排序就好了. 不会一点依据都没有.
-      // 作者也是一样
-
       total_user_count: await this.userModel.countDocuments(),
       total_note_count: await this.noteModel.countDocuments(),
       total_note_like_count: _note_detail_count.like_count,
       total_note_read_count: _note_detail_count.read_count,
+      total_request_count: _requests.length,
+      popular_requests,
+      popular_notes,
+      popular_authors,
+      popular_tags,
     })
     await newStatistics.save()
   }

@@ -34,6 +34,18 @@ export class StatisticsController {
   async getDataOverview() {
     return await this.statisticsService.getDataOverview()
   }
+  @Post('/popular-author/list')
+  async getPopularAuthor() {
+    return await this.statisticsService.getPopularAuthor()
+  }
+  @Post('/popular-note/list')
+  async getPopularNote() {
+    return await this.statisticsService.getPopularNote()
+  }
+  @Post('/popular-tag/list')
+  async getPopularTag() {
+    return await this.statisticsService.getPopularTag()
+  }
 
   // 查询日志...
   @Post('/statistic-actions/query/list')

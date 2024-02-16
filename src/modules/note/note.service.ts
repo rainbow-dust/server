@@ -74,13 +74,6 @@ export class NoteService {
           $set: { preferences: _newPreferences },
         },
       )
-      // 查询用户的 preferences
-      const _p = await this.userModel
-        .findById(user._id)
-        .select('preferences')
-        .populate('preferences', 'tag')
-        .lean()
-      console.log(_p)
     }
     await this.noteModel.updateOne({ _id: id }, { $inc: { read_count: 1 } })
     const note = await this.noteModel
