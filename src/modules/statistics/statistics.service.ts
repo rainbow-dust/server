@@ -157,6 +157,11 @@ export class StatisticsService {
     }
   }
 
+  async getPopularRequest() {
+    const data = await this.statisticsModel.find({}).sort({ _id: -1 }).limit(1)
+    return { list: data[0].popular_requests }
+  }
+
   async getPopularAuthor() {
     const data = await this.statisticsModel
       .find({})
@@ -295,6 +300,7 @@ export class StatisticsService {
             _id: null,
             like_count: { $sum: '$like_count' },
             read_count: { $sum: '$read_count' },
+            comment_count: { $sum: '$comment_count' },
           },
         },
       ])
@@ -366,6 +372,7 @@ export class StatisticsService {
       total_note_count: await this.noteModel.countDocuments(),
       total_note_like_count: _note_detail_count.like_count,
       total_note_read_count: _note_detail_count.read_count,
+      total_comment_count: _note_detail_count.comment_count,
       total_request_count: _requests.length,
       popular_requests,
       popular_notes,

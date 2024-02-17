@@ -40,6 +40,11 @@ export class StatisticsController {
     return await this.statisticsService.getPeriodGroupedNotes()
   }
 
+  @Post('/popular-request/list')
+  async getPopularRequest() {
+    return await this.statisticsService.getPopularRequest()
+  }
+
   @Post('/popular-author/list')
   async getPopularAuthor() {
     return await this.statisticsService.getPopularAuthor()

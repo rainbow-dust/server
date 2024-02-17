@@ -26,6 +26,8 @@ class StatisticsModel extends Document {
   @Prop()
   total_note_read_count: number
   @Prop()
+  total_comment_count: number
+  @Prop()
   created_at: Date
   @Prop()
   total_request_count: number
