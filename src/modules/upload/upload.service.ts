@@ -1,32 +1,54 @@
-import * as fs from 'fs'
-import * as path from 'path'
+import qiniu from 'qiniu'
 import * as url from 'url'
 
 import { Injectable, InternalServerErrorException } from '@nestjs/common'
 
+import { QINIU_SECRET } from '~/global/env.global'
+
 @Injectable()
 export class UploadService {
   async uploadPhoto(file: Express.Multer.File) {
-    const uploadDir = path.join(__dirname, '../../../uploads')
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir)
-    }
+    const mac = new qiniu.auth.digest.Mac(
+      QINIU_SECRET.qn_ak,
+      QINIU_SECRET.qn_sk,
+    )
+    const putPolicy = new qiniu.rs.PutPolicy({
+      scope: QINIU_SECRET.qn_scope,
+    })
+    const uploadToken = putPolicy.uploadToken(mac)
 
-    const extname = path.extname(file.originalname)
-    const filename = `${file.originalname
-      .replace(extname, '')
-      .toLowerCase()
-      .split(' ')
-      .join('_')}-${Date.now()}${extname}`
-    const filepath = path.join(uploadDir, filename)
+    // upload
+    const formUploader = new qiniu.form_up.FormUploader(
+      new qiniu.conf.Config({
+        zone: qiniu.zone.Zone_z1,
+      }),
+    )
+    const img = (await new Promise((_res, _rej) => {
+      formUploader.put(
+        uploadToken,
+        `${Date.now()}-${file.originalname}`,
+        file.buffer,
+        new qiniu.form_up.PutExtra(),
+        (respErr, respBody, respInfo) => {
+          if (respErr) {
+            console.error(respErr)
+            throw new InternalServerErrorException(respErr.message)
+          }
 
-    try {
-      await fs.promises.writeFile(filepath, file.buffer)
-      return {
-        url: url.resolve('', `/uploads/${filename}`),
-      }
-    } catch (error) {
-      throw new InternalServerErrorException('上传失败')
-    }
+          if (respInfo.statusCode == 200) {
+            _res({
+              url: new url.URL(respBody.key, QINIU_SECRET.qn_host).href,
+            })
+          } else {
+            console.error(respInfo.statusCode, respBody)
+            throw new InternalServerErrorException(respInfo)
+          }
+        },
+      )
+    })) as { url: string }
+
+    // https 目前不可访问...
+    const http_url = img.url.replace('https', 'http')
+    return { url: http_url }
   }
 }

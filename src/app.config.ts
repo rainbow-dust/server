@@ -30,3 +30,10 @@ export const SECURITY = {
   jwtSecret: 'furina',
   jwtExpire: 60 * 60 * 24 * 7,
 }
+
+export const QINIU_SECRET = {
+  qn_host: process.env.QN_HOST || argv.qn_host,
+  qn_scope: process.env.QN_SCOPE || argv.qn_scope,
+  qn_ak: process.env.QN_AK || argv.qn_ak,
+  qn_sk: process.env.QN_SK || argv.qn_sk,
+}

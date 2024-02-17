@@ -7,6 +7,7 @@ import {
   ApiProperty,
 } from '@nestjs/swagger'
 
+import { Auth } from '~/common/decorator/auth.decorator'
 import { ApiName } from '~/common/decorator/openapi.decorator'
 
 import { UploadService } from './upload.service'
@@ -28,7 +29,7 @@ export class UploadController {
     type: FileDto,
   })
   @ApiConsumes('multipart/form-data')
-  // @Auth() // 权限校验
+  @Auth() // 权限校验
   @UseInterceptors(FileInterceptor('file')) // 处理文件中间件 file 与上传的字段对应
   upload(@UploadedFile() file: Express.Multer.File) {
     return this.UploadService.uploadPhoto(file)
