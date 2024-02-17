@@ -50,7 +50,7 @@ export class NoticeService {
       .skip((pageCurrent - 1) * pageSize)
       .limit(pageSize)
       // 做成如果是系统通知，那么就不需要pop from的信息。...啊...
-      .populate('from', 'username avatar')
+      .populate('from', 'username avatar_url')
 
     // ...https://stackoverflow.com/questions/53554434/return-updated-models-in-mongoose-using-updatemany
     await this.noticeModel.updateMany({ to: user._id }, { is_read: true })
