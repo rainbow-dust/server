@@ -19,7 +19,6 @@ export class CollectController {
     @Body() collect: CollectModifyDto,
     @CurrentUser() user: UserModel,
   ) {
-    console.log('collect', collect, user)
     return this.collectService.create(collect, user)
   }
 

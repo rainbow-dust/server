@@ -51,12 +51,6 @@ export class StatisticsService {
     await this.statisticActionsModel.insertMany(_statisticActions)
   }
 
-  async collectRequest(req) {
-    // 其实这一部分我有想直接在后端做掉的...但是 nest 我可能还是不太会。
-    // 需要将 interceptor, global, modules 几个地方的东西都搞清楚...实在不行就也用前端做好了。
-    console.log(req)
-  }
-
   /* 
     这里是数据查询
     

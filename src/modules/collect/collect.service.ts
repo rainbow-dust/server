@@ -23,7 +23,6 @@ export class CollectService {
   ) {}
 
   async create(collect: CollectModifyDto, user: UserModel) {
-    console.log('collect', collect, user._id)
     return this.collectModel.create({
       ...collect,
       creator: user._id,
@@ -86,7 +85,6 @@ export class CollectService {
   async addNoteToCollect(collectNoteDto, collectId: string, user: UserModel) {
     const _collect = await this.collectModel.findOne({ _id: collectId })
     if (_collect.creator.toString() != user._id.toString()) {
-      console.log('collect.creator', _collect.creator, user._id)
       throw new Error('无修改权限')
     }
 
