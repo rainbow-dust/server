@@ -6,11 +6,10 @@ export const API_VERSION = 1
 export const CROSS_DOMAIN = {
   allowedOrigins: [
     'huamurui.me',
+    '.*dev',
     'localhost',
     '127.0.0.1',
-    '.*dev',
     '192.168.*',
-    '120.46.195.245',
   ],
 }
 

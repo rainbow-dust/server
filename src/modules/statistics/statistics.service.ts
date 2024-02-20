@@ -312,7 +312,6 @@ export class StatisticsService {
       }
       return prev
     }, {})
-    console.log(_requests_grouped)
     // 嗯...常理来说 popular_xxx 应该是计算一段时间内的增量来搞的，记录的数据也应该是一段时间内的...但是...
     // 这边的代码想搞真实有效的数据还是太费劲也太费时间了...
     const popular_requests = Object.keys(_requests_grouped).map((key) => {
