@@ -2,7 +2,7 @@
 
 ## description
 
-this repo is the back-end part of furina, base on nestjs, mongodb... building for server.
+this repo is the back-end part of furina, base on nestjs, mongodb... building for SNS server.
 
 related repos:
 
@@ -53,58 +53,17 @@ related repos:
 
 ## deployment
 
-### docker
-
-```bash
-docker pull huamurui/furina-server
-docker run huamurui/furina-server
-```
-
 ### docker compose
 
-```yaml
-version: '3.8'
+deploy: [example.yaml](./docker-compose.yml)
 
-services:
-  app:
-    container_name: furina-server
-    image: huamurui/furina-server:latest
-    command: node index.js --db_host=furina_mongo --color
-    environment:
-      - TZ=Asia/Shanghai
-      - NODE_ENV=production
-    volumes:
-      - ./data/furina-server:/root/.furina-server
-    ports:
-      - '9527:9527'
-    depends_on:
-      - furina_mongo
-    links:
-      - furina_mongo
-    networks:
-      - app-network
-    restart: always
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://127.0.0.1:4913/api/v1/ping']
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+backup:
 
-  furina_mongo:
-    container_name: furina_mongo
-    image: mongo
-    volumes:
-      - ./data/db:/data/db
-    ports:
-      - '7495:27017'
-    networks:
-      - app-network
-    restart: always
-
-networks:
-  app-network:
-    driver: bridge
+```bash
+docker exec -it furina_mongo /bin/bash
+mongodump -h localhost -d furina -o /mongo-backup
+exit
+docker cp furina_mongo:/mongo-backup ./mongo-backup
 ```
 
 ### source code

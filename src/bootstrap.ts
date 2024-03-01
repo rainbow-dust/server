@@ -24,7 +24,8 @@ export async function bootstrap() {
         }
       : undefined,
   )
-
+  // here we can set global prefix for all routes...
+  // but API_VERSION is not .env variable... it's defined in app.config.ts, so the test may fail
   app.setGlobalPrefix(isDev ? '' : `api/v${API_VERSION}`)
   if (isDev) {
     app.useGlobalInterceptors(new LoggingInterceptor())
